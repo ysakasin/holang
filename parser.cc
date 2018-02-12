@@ -262,6 +262,9 @@ struct FuncDefNode : public Node {
     body_code.push_back({OP_RET});
     set_func(name, new Func(body_code));
     local_ident_table.prev();
+
+    codes->push_back({OP_LOAD_BOOL});
+    codes->push_back({.bval = true});
   }
 };
 
