@@ -1,0 +1,4 @@
+func echo(a) {
+  a
+}
+print(echo(1))

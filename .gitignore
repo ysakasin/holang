@@ -2,3 +2,4 @@ ho
 test.cc
 *.o
 a.out
+*.dSYM

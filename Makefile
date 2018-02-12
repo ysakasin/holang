@@ -8,11 +8,17 @@ CXXFLAGS := -std=c++11
 all: ho
 
 ho: $(CC_SRC) $(HH_SRC)
-	$(CXX) -std=c++11 -o $@ $(CC_SRC)
+	$(CXX) $(CXXFLAGS) -o $@ $(CC_SRC)
 
+.PHONY: g
+g:
+	$(CXX) $(CXXFLAGS) -g -o ho $(CC_SRC)
 # .cc.o:
 # 	$(CXX) $(CXXFLAGS) -c $<
 
-.PHONY: clean
+.PHONY: clean test
 clean:
 	$(RM) ho a.out *.o
+
+test: ho
+	./test.sh
