@@ -68,7 +68,7 @@ void binop_less(vector<Value> *stack) {
   Value lhs = stack->back();
   stack->pop_back();
 
-  stack->push_back(Value{VBOOL, lhs.ival < rhs.ival});
+  stack->push_back(Value{VBOOL, .bval = lhs.ival < rhs.ival});
 }
 
 void binop_greater(vector<Value> *stack) {
@@ -78,7 +78,7 @@ void binop_greater(vector<Value> *stack) {
   Value lhs = stack->back();
   stack->pop_back();
 
-  stack->push_back(Value({VBOOL, lhs.ival > rhs.ival}));
+  stack->push_back(Value({VBOOL, .bval = lhs.ival > rhs.ival}));
 }
 
 map<string, Func *> env;
@@ -89,7 +89,7 @@ Value print_func(Value *args, int argc) {
     cout << args[i].to_s() << ":";
   }
   cout << endl;
-  return Value({VBOOL, true});
+  return Value({VBOOL, .bval = true});
 }
 
 void init_vm() {
@@ -116,10 +116,10 @@ void eval(vector<Code> *codes) {
       stack.resize(stack.size() + codes->at(++i).ival);
       break;
     case OP_LOAD_INT:
-      stack.push_back(Value({VINT, codes->at(++i).ival}));
+      stack.push_back(Value({VINT, .ival = codes->at(++i).ival}));
       break;
     case OP_LOAD_BOOL:
-      stack.push_back(Value({VBOOL, codes->at(++i).bval}));
+      stack.push_back(Value({VBOOL, .bval = codes->at(++i).bval}));
       break;
     case OP_POP:
       stack.pop_back();
