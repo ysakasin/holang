@@ -12,8 +12,18 @@ using namespace std;
                                                                                \
     Value lhs = stack->back();                                                 \
     stack->pop_back();                                                         \
-                                                                               \
-    stack->push_back(Value({VINT, lhs.ival op rhs.ival}));                     \
+    if (lhs.type == VINT && rhs.type == VINT) {                                \
+      stack->push_back(Value({VINT, .ival = lhs.ival op rhs.ival}));           \
+    } else if (lhs.type == VINT && rhs.type == VDOUBLE) {                      \
+      stack->push_back(Value({VDOUBLE, .dval = lhs.ival op rhs.dval}));        \
+    } else if (lhs.type == VDOUBLE && rhs.type == VINT) {                      \
+      stack->push_back(Value({VDOUBLE, .dval = lhs.dval op rhs.ival}));        \
+    } else if (lhs.type == VDOUBLE && rhs.type == VDOUBLE) {                   \
+      stack->push_back(Value({VDOUBLE, .dval = lhs.dval op rhs.dval}));        \
+    } else {                                                                   \
+      cerr << "can not cal " #op << endl;                                      \
+      exit(1);                                                                 \
+    }                                                                          \
   }
 
 DEF_BINOP_FUNC(add, +)
