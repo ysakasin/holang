@@ -1,5 +1,5 @@
-CC_SRC := main.cc lexer.cc parser.cc vm.cc
-HH_SRC := holang.hh
+CC_SRC := main.cc lexer.cc parser.cc object.cc
+HH_SRC := holang.hh vm.hh
 INC_SRC := keyword.inc opcode.inc
 
 CXXFLAGS := -std=c++11 -Wall

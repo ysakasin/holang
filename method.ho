@@ -1,0 +1,3 @@
+print(1.next())
+a = 2
+print(a.next())

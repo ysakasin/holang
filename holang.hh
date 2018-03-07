@@ -1,4 +1,8 @@
+#pragma once
+
 #include <functional>
+#include <iostream>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -44,12 +48,15 @@ const std::string OPCODE_S[] = {
 };
 #undef opcode
 
+class Object;
+
 union Code {
   OpCode op;
   int ival;
   double dval;
   bool bval;
   std::string *sval;
+  Object *objval;
 };
 
 enum NodeType {
@@ -73,7 +80,11 @@ enum ValueType {
   VINT,
   VDOUBLE,
   VBOOL,
+  VOBJECT,
 };
+
+class Object;
+struct Func;
 
 struct Value {
   ValueType type;
@@ -81,7 +92,16 @@ struct Value {
     int ival;
     double dval;
     bool bval;
+    Object *objval;
   };
+
+  Value() {}
+  Value(int i) : type(VINT), ival(i) {}
+  Value(double d) : type(VDOUBLE), dval(d) {}
+  Value(bool b) : type(VBOOL), bval(b) {}
+  Value(Object *obj) : type(VOBJECT), objval(obj) {}
+
+  Func *find_method(const std::string &name);
 
   const std::string to_s() {
     switch (type) {
@@ -91,6 +111,8 @@ struct Value {
       return bval ? "true" : "false";
     case VDOUBLE:
       return std::to_string(dval);
+    case VOBJECT:
+      return "<Object>";
     }
   }
 };
@@ -100,18 +122,21 @@ enum FuncType {
   FUSERDEF,
 };
 
+using NativeFunc = std::function<Value(Value *, Value *, int)>;
+
 struct Func {
   FuncType type;
-  std::function<Value(Value *, int)> native;
+  NativeFunc native;
   std::vector<Code> body;
 
   // Func() {}
   Func(const Func &func)
       : type(func.type), native(func.native), body(func.body) {}
-  Func(std::function<Value(Value *, int)> native)
-      : type(FBUILTIN), native(native) {}
+  Func(NativeFunc native) : type(FBUILTIN), native(native) {}
   Func(const std::vector<Code> &body) : type(FUSERDEF), body(body) {}
 };
+
+#include "./object.hh"
 
 void print_token(const Token *token);
 Node *parse(const std::vector<Token *> &chain);

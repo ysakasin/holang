@@ -120,6 +120,8 @@ Token *take_token() {
     return make_keyword(KBRACER);
   case ',':
     return make_keyword(KCOMMA);
+  case '.':
+    return make_keyword(KDOT);
   case '\n':
     line++;
     line_head = code_head - 1;

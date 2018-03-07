@@ -1,4 +1,4 @@
-codes="fib.ho test.ho sample.ho"
+codes="fib.ho test.ho sample.ho method.ho"
 
 pass=0
 fail=0

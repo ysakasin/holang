@@ -18,7 +18,7 @@ class LocalIdentTable {
   vector<IdentTable> tables;
 
 public:
-  LocalIdentTable() : tables(1) {}
+  LocalIdentTable() : tables(1) { tables.back().push_back("self"); }
   int get(const string &ident) {
     auto &local_idents = tables.back();
     auto iter = find(local_idents.begin(), local_idents.end(), ident);
@@ -29,7 +29,7 @@ public:
       return distance(local_idents.begin(), iter);
     }
   }
-  void next() { tables.push_back(vector<string>()); }
+  void next() { tables.push_back({"self"}); }
   void prev() { tables.pop_back(); }
   int size() { return tables.back().size(); }
 };
@@ -47,6 +47,8 @@ int size_local_idents() { return local_ident_table.size(); }
 //     return distance(local_idents.begin(), iter);
 //   }
 // }
+
+void print_code(const vector<Code> &codes);
 
 struct IntLiteralNode : public Node {
   int value;
@@ -201,7 +203,7 @@ struct IfNode : public Node {
     codes->push_back({OP_JUMP});
     codes->push_back({.ival = 0}); // dummy
 
-    int to_else = codes->size() - 1;
+    int to_else = codes->size();
     if (els == nullptr) {
       // nilの概念ができたらnilにする
       codes->push_back({OP_LOAD_INT});
@@ -209,7 +211,7 @@ struct IfNode : public Node {
     } else {
       els->code_gen(codes);
     }
-    int to_end = codes->size() - 1;
+    int to_end = codes->size();
 
     codes->at(from_if).ival = to_else;
     codes->at(from_then).ival = to_end;
@@ -219,8 +221,11 @@ struct IfNode : public Node {
 struct FuncCallNode : public Node {
   string name;
   vector<Node *> args;
+  Node *self;
   FuncCallNode(const string &name, const vector<Node *> &args)
-      : Node(AST_STMTS), name(name), args(args) {}
+      : Node(AST_STMTS), name(name), args(args), self(nullptr) {}
+  FuncCallNode(const string &name, Node *self, const vector<Node *> &args)
+      : Node(AST_STMTS), name(name), args(args), self(self) {}
   virtual void print() {
     cout << "(Call " << name << " ";
     for (const auto &arg : args) {
@@ -230,6 +235,12 @@ struct FuncCallNode : public Node {
     cout << ")";
   }
   virtual void code_gen(vector<Code> *codes) {
+    if (self != nullptr) {
+      self->code_gen(codes);
+    } else {
+      codes->push_back({OP_PUT_SELF});
+    }
+
     for (Node *arg : args) {
       arg->code_gen(codes);
     }
@@ -260,11 +271,16 @@ struct FuncDefNode : public Node {
     body->code_gen(&body_code);
     cout << "def:" << body_code.size() << endl;
     body_code.push_back({OP_RET});
-    set_func(name, new Func(body_code));
+    codes->push_back({OP_DEF_FUNC});
+    codes->push_back({.sval = &name});
+    codes->push_back({.objval = (Object *)new Func(body_code)});
+    // set_func(name, new Func(body_code));
     local_ident_table.prev();
 
-    codes->push_back({OP_LOAD_BOOL});
-    codes->push_back({.bval = true});
+    // print_code(body_code);
+
+    // codes->push_back({OP_LOAD_BOOL});
+    // codes->push_back({.bval = true});
   }
 };
 
@@ -354,19 +370,31 @@ Node *read_funccall() {
 }
 
 Node *read_prime() {
+  Node *node;
   if (expect(TNUMBER))
-    return read_number();
+    node = read_number();
   else if (expect(TIDENT)) {
-    return read_funccall();
+    node = read_funccall();
   } else if (next_token(KTRUE))
-    return new BoolLiteralNode(true);
+    node = new BoolLiteralNode(true);
   else if (next_token(KFALSE))
-    return new BoolLiteralNode(false);
+    node = new BoolLiteralNode(false);
   else {
     cout << endl;
     print_token(get());
     INVALID(read_prime);
   }
+
+  while (next_token(KDOT)) {
+    Token *token = get();
+    vector<Node *> args;
+    should(token, TIDENT);
+    take_keyword(KPARENL);
+    // read_exprs(args);
+    take_keyword(KPARENR);
+    node = new FuncCallNode(*token->sval, node, args);
+  }
+  return node;
 }
 
 Node *ast_binop(Keyword op, Node *lhs, Node *rhs) {
@@ -495,4 +523,63 @@ Node *parse(const vector<Token *> &chain) {
   root->print();
   cout << endl;
   return root;
+}
+
+void print_code(const vector<Code> &codes) {
+  printf("---------- code ----------\n");
+  for (int i = 0; i < codes.size(); i) {
+    printf("%2d: ", i);
+    auto op = codes[i++].op;
+    switch (op) {
+    case OP_PUT_ENV:
+      printf("%s %d\n", OPCODE_S[op].c_str(), codes[i++].ival);
+      break;
+    case OP_LOAD_INT:
+      printf("%s %d\n", OPCODE_S[op].c_str(), codes[i++].ival);
+      break;
+    case OP_LOAD_BOOL:
+      printf("%s %d\n", OPCODE_S[op].c_str(), codes[i++].bval);
+      break;
+    case OP_POP:
+    case OP_ADD:
+    case OP_SUB:
+    case OP_MUL:
+    case OP_DIV:
+    case OP_LESS:
+    case OP_GREATER:
+      printf("%s\n", OPCODE_S[op].c_str());
+      break;
+    case OP_LOCAL_STORE:
+      printf("%s %d\n", OPCODE_S[op].c_str(), codes[i++].ival);
+      break;
+    case OP_LOCAL_LOAD:
+      printf("%s %d\n", OPCODE_S[op].c_str(), codes[i++].ival);
+      break;
+    case OP_PUT_SELF:
+      printf("%s\n", OPCODE_S[op].c_str());
+      break;
+    case OP_JUMP:
+    case OP_JUMP_IF:
+    case OP_JUMP_IFNOT:
+      printf("%s %d\n", OPCODE_S[op].c_str(), codes[i++].ival);
+      break;
+    case OP_RET:
+      printf("%s\n", OPCODE_S[op].c_str());
+      break;
+    case OP_DEF_FUNC:
+      printf("%s %s %d\n", OPCODE_S[op].c_str(), codes[i].sval->c_str(),
+             codes[i + 1].ival);
+      i += 2;
+      break;
+    case OP_CALL_FUNC:
+      printf("%s %s %d\n", OPCODE_S[op].c_str(), codes[i].sval->c_str(),
+             codes[i + 1].ival);
+      i += 2;
+      break;
+    default:
+      std::cerr << "hogehogehogehogheog" << endl;
+      exit(1);
+    }
+  }
+  printf("---------- code ----------\n");
 }

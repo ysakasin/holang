@@ -1,4 +1,5 @@
 #include "./holang.hh"
+#include "./vm.hh"
 #include <fstream>
 #include <iostream>
 
@@ -27,9 +28,15 @@ int main(int argc, char *argv[]) {
   print_token_chain(token_chain);
   Node *root = parse(token_chain);
   vector<Code> codes;
-  codes.push_back({.op = OP_PUT_ENV});
-  codes.push_back({.ival = 0});
+  // codes.push_back({.op = OP_PUT_ENV});
+  // codes.push_back({.ival = 0});
   root->code_gen(&codes);
-  codes[1].ival = size_local_idents();
-  eval(&codes);
+  // codes[1].ival = size_local_idents();
+
+  HolangVM vm(size_local_idents());
+  vm.codes = &codes;
+  cout << "----- vm.eval() begin -----" << endl;
+  vm.eval();
+  cout << "----- vm.eval() end -------" << endl;
+  vm.print_stack();
 }
