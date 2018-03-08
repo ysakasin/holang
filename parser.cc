@@ -50,10 +50,19 @@ int size_local_idents() { return local_ident_table.size(); }
 
 void print_code(const vector<Code> &codes);
 
+void print_offset(int offset) {
+  for (int i = 0; i < offset; i++) {
+    cout << ".  ";
+  }
+}
+
 struct IntLiteralNode : public Node {
   int value;
   IntLiteralNode(int value) : Node(AST_INT_LITERAL), value(value){};
-  virtual void print() { cout << "(IntLiteral " << value << ")"; }
+  virtual void print(int offset) {
+    print_offset(offset);
+    cout << "IntLiteral " << value << "" << endl;
+  }
   virtual void code_gen(vector<Code> *codes) {
     codes->push_back({.op = OP_LOAD_INT});
     codes->push_back({.ival = value});
@@ -68,7 +77,10 @@ const string BOOL_S[] = {
 struct BoolLiteralNode : public Node {
   bool value;
   BoolLiteralNode(bool value) : Node(AST_BOOL_LITERAL), value(value){};
-  virtual void print() { cout << "(BoolLiteral " << BOOL_S[value] << ")"; }
+  virtual void print(int offset) {
+    print_offset(offset);
+    cout << "BoolLiteral " << BOOL_S[value] << endl;
+  }
   virtual void code_gen(vector<Code> *codes) {
     codes->push_back({.op = OP_LOAD_BOOL});
     codes->push_back({.bval = value});
@@ -78,9 +90,12 @@ struct BoolLiteralNode : public Node {
 struct IdentNode : public Node {
   string ident;
   IdentNode(const string &ident) : Node(AST_IDENT), ident(ident) {}
-  virtual void print() { cout << "(Ident " << ident << ")"; }
+  virtual void print(int offset) {
+    print_offset(offset);
+    cout << "Ident " << ident << endl;
+  }
   virtual void code_gen(vector<Code> *codes) {
-    cout << ident << ":" << local_ident_table.get(ident) << endl;
+    // cout << ident << ":" << local_ident_table.get(ident) << endl;
     codes->push_back({.op = OP_LOCAL_LOAD});
     codes->push_back({.ival = local_ident_table.get(ident)});
   }
@@ -111,12 +126,11 @@ struct BinopNode : public Node {
   Node *lhs, *rhs;
   BinopNode(Keyword op, Node *lhs, Node *rhs)
       : Node(AST_BINOP), op(op), lhs(lhs), rhs(rhs) {}
-  virtual void print() {
-    cout << "(";
-    lhs->print();
-    cout << KEYWORD_S[op];
-    rhs->print();
-    cout << ")";
+  virtual void print(int offset) {
+    print_offset(offset);
+    cout << "Binop " << KEYWORD_S[op] << endl;
+    lhs->print(offset + 1);
+    rhs->print(offset + 1);
   }
   virtual void code_gen(vector<Code> *codes) {
     lhs->code_gen(codes);
@@ -130,14 +144,14 @@ struct AssignNode : public Node {
   Node *rhs;
   AssignNode(IdentNode *ident, Node *rhs)
       : Node(AST_ASSIGN), lhs(ident), rhs(rhs) {}
-  virtual void print() {
-    cout << "(Assign " << lhs->ident << ", ";
-    rhs->print();
-    cout << ")";
+  virtual void print(int offset) {
+    print_offset(offset);
+    cout << "Assign " << lhs->ident << endl;
+    rhs->print(offset + 1);
   }
   virtual void code_gen(vector<Code> *codes) {
     rhs->code_gen(codes);
-    cout << lhs->ident << ":" << local_ident_table.get(lhs->ident) << endl;
+    // cout << lhs->ident << ":" << local_ident_table.get(lhs->ident) << endl;
     codes->push_back({.op = OP_LOCAL_STORE});
     codes->push_back({.ival = local_ident_table.get(lhs->ident)});
   }
@@ -149,10 +163,9 @@ struct ExprsNode : public Node {
   int num;
   ExprsNode(Node *current, Node *next, int num)
       : Node(AST_STMTS), current(current), next(next), num(num) {}
-  virtual void print() {
-    current->print();
-    cout << endl;
-    next->print();
+  virtual void print(int offset) {
+    current->print(offset);
+    next->print(offset);
   }
   virtual void code_gen(vector<Code> *codes) {
     current->code_gen(codes);
@@ -165,10 +178,9 @@ struct StmtsNode : public Node {
   Node *next;
   StmtsNode(Node *current, Node *next)
       : Node(AST_STMTS), current(current), next(next) {}
-  virtual void print() {
-    current->print();
-    cout << endl;
-    next->print();
+  virtual void print(int offset) {
+    current->print(offset);
+    next->print(offset);
   }
   virtual void code_gen(vector<Code> *codes) {
     current->code_gen(codes);
@@ -181,15 +193,20 @@ struct IfNode : public Node {
   Node *cond, *then, *els;
   IfNode(Node *cond, Node *then, Node *els)
       : Node(AST_IF), cond(cond), then(then), els(els) {}
-  virtual void print() {
-    cout << "(If ";
-    cond->print();
-    cout << ", then ";
-    then->print();
-    cout << ", else ";
-    if (els != nullptr)
-      els->print();
-    cout << ")";
+  virtual void print(int offset) {
+    print_offset(offset);
+    cout << "if" << endl;
+    cond->print(offset + 1);
+
+    print_offset(offset);
+    cout << "then " << endl;
+    then->print(offset + 1);
+
+    if (els != nullptr) {
+      print_offset(offset);
+      cout << "else" << endl;
+      els->print(offset + 1);
+    }
   }
   virtual void code_gen(vector<Code> *codes) {
     cond->code_gen(codes);
@@ -226,13 +243,12 @@ struct FuncCallNode : public Node {
       : Node(AST_STMTS), name(name), args(args), self(nullptr) {}
   FuncCallNode(const string &name, Node *self, const vector<Node *> &args)
       : Node(AST_STMTS), name(name), args(args), self(self) {}
-  virtual void print() {
-    cout << "(Call " << name << " ";
+  virtual void print(int offset) {
+    print_offset(offset);
+    cout << "Call " << name << endl;
     for (const auto &arg : args) {
-      arg->print();
-      cout << ",";
+      arg->print(offset + 1);
     }
-    cout << ")";
   }
   virtual void code_gen(vector<Code> *codes) {
     if (self != nullptr) {
@@ -256,10 +272,10 @@ struct FuncDefNode : public Node {
   Node *body;
   FuncDefNode(const string &name, const vector<string> &args, Node *body)
       : Node(AST_STMTS), name(name), args(args), body(body) {}
-  virtual void print() {
-    cout << "(FuncDef " << name << " ";
-    body->print();
-    cout << ")";
+  virtual void print(int offset) {
+    print_offset(offset);
+    cout << "FuncDef " << name << endl;
+    body->print(offset + 1);
   }
   virtual void code_gen(vector<Code> *codes) {
     vector<Code> body_code;
@@ -269,7 +285,7 @@ struct FuncDefNode : public Node {
       local_ident_table.get(arg);
     }
     body->code_gen(&body_code);
-    cout << "def:" << body_code.size() << endl;
+    // cout << "def:" << body_code.size() << endl;
     body_code.push_back({OP_RET});
     codes->push_back({OP_DEF_FUNC});
     codes->push_back({.sval = &name});
@@ -520,7 +536,7 @@ Node *parse(const vector<Token *> &chain) {
   //   exit(1);
   // }
   Node *root = read_toplevel();
-  root->print();
+  root->print(0);
   cout << endl;
   return root;
 }

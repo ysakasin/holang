@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
 
   vector<Token *> token_chain;
   lex(code, token_chain);
-  print_token_chain(token_chain);
+  // print_token_chain(token_chain);
   Node *root = parse(token_chain);
   vector<Code> codes;
   // codes.push_back({.op = OP_PUT_ENV});
@@ -38,5 +38,5 @@ int main(int argc, char *argv[]) {
   cout << "----- vm.eval() begin -----" << endl;
   vm.eval();
   cout << "----- vm.eval() end -------" << endl;
-  vm.print_stack();
+  // vm.print_stack();
 }
