@@ -71,6 +71,23 @@ Token *read_ident(char c) {
   }
 }
 
+Token *make_str(const string &str) {
+  string *sval = new string(str);
+  return new Token({TSTRING, .sval = sval});
+}
+
+Token *read_str() {
+  string str = "";
+  while (true) {
+    char c = readc();
+    if (c == '"') {
+      break;
+    }
+    str.push_back(c);
+  }
+  return make_str(str);
+}
+
 Token *make_eof() { return new Token({TEOF}); }
 
 Token *make_newline() { return new Token({TNEWLINE}); }
@@ -96,6 +113,8 @@ Token *take_token() {
   switch (c) {
   case '0' ... '9':
     return read_number(c);
+  case '"':
+    return read_str();
   case '+':
     return make_keyword(KADD);
   case '-':

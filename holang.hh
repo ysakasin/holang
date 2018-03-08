@@ -8,6 +8,7 @@
 
 enum TokenType {
   TNUMBER,
+  TSTRING,
   TKEYWORD,
   TIDENT,
   TNEWLINE,
@@ -86,6 +87,8 @@ enum ValueType {
 class Object;
 struct Func;
 
+#include "./object.hh"
+
 struct Value {
   ValueType type;
   union {
@@ -112,7 +115,7 @@ struct Value {
     case VDOUBLE:
       return std::to_string(dval);
     case VOBJECT:
-      return "<Object>";
+      return objval->to_s();
     }
   }
 };

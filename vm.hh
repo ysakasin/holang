@@ -1,6 +1,7 @@
 #pragma once
 
 #include "./holang.hh"
+#include "./string.hh"
 
 #include <cstring>
 #include <iostream>
@@ -67,6 +68,9 @@ public:
         break;
       case OP_LOAD_BOOL:
         load_bool();
+        break;
+      case OP_LOAD_STRING:
+        load_string();
         break;
       case OP_LOCAL_LOAD:
         local_load();
@@ -178,6 +182,10 @@ private:
   void load_bool() {
     bool b = take_code().bval;
     stack_push(b);
+  }
+  void load_string() {
+    std::string *str = take_code().sval;
+    stack_push(new String(*str));
   }
   void local_load() {
     int offset = take_code().ival;

@@ -87,6 +87,19 @@ struct BoolLiteralNode : public Node {
   }
 };
 
+struct StringLiteralNode : public Node {
+  string str;
+  StringLiteralNode(const string &str) : Node(AST_BOOL_LITERAL), str(str){};
+  virtual void print(int offset) {
+    print_offset(offset);
+    cout << "StringLiteral \"" << str << "\"" << endl;
+  }
+  virtual void code_gen(vector<Code> *codes) {
+    codes->push_back({.op = OP_LOAD_STRING});
+    codes->push_back({.sval = &str});
+  }
+};
+
 struct IdentNode : public Node {
   string ident;
   IdentNode(const string &ident) : Node(AST_IDENT), ident(ident) {}
@@ -357,6 +370,11 @@ Node *read_number() {
   return new IntLiteralNode(val);
 }
 
+Node *read_string() {
+  Token *token = get();
+  return new StringLiteralNode(*token->sval);
+}
+
 // Node *read_ident() {
 //   Token *token = get();
 //   return new IdentNode(*token->sval);
@@ -395,6 +413,8 @@ Node *read_prime() {
     node = new BoolLiteralNode(true);
   else if (next_token(KFALSE))
     node = new BoolLiteralNode(false);
+  else if (expect(TSTRING))
+    node = read_string();
   else {
     cout << endl;
     print_token(get());
@@ -555,6 +575,9 @@ void print_code(const vector<Code> &codes) {
       break;
     case OP_LOAD_BOOL:
       printf("%s %d\n", OPCODE_S[op].c_str(), codes[i++].bval);
+      break;
+    case OP_LOAD_STRING:
+      printf("%s %s\n", OPCODE_S[op].c_str(), codes[i++].sval->c_str());
       break;
     case OP_POP:
     case OP_ADD:

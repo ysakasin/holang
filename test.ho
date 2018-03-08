@@ -2,3 +2,4 @@ func echo(a) {
   a
 }
 print(echo(1))
+print("Hello World")

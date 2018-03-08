@@ -1,6 +1,7 @@
 opcode(OP_PUT_ENV)
 opcode(OP_LOAD_INT)
 opcode(OP_LOAD_BOOL)
+opcode(OP_LOAD_STRING)
 opcode(OP_POP)
 opcode(OP_ADD)
 opcode(OP_SUB)
