@@ -1,7 +1,7 @@
 #pragma once
 
-#include "./holang.hh"
-#include "./string.hh"
+#include "./holang.h"
+#include "./string.h"
 
 #include <cstring>
 #include <iostream>

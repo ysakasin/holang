@@ -1,6 +1,6 @@
 #pragma once
 
-#include "./object.hh"
+#include "./object.h"
 
 class String : public Object {
 public:

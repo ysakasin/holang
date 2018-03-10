@@ -1,5 +1,5 @@
 ho
-test.cc
+test.cpp
 *.o
 a.out
 *.dSYM

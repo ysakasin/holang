@@ -87,7 +87,7 @@ enum ValueType {
 class Object;
 struct Func;
 
-#include "./object.hh"
+#include "./object.h"
 
 struct Value {
   ValueType type;
@@ -139,7 +139,7 @@ struct Func {
   Func(const std::vector<Code> &body) : type(FUSERDEF), body(body) {}
 };
 
-#include "./object.hh"
+#include "./object.h"
 
 void print_token(const Token *token);
 Node *parse(const std::vector<Token *> &chain);

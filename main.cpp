@@ -1,5 +1,5 @@
-#include "./holang.hh"
-#include "./vm.hh"
+#include "./holang.h"
+#include "./vm.h"
 #include <fstream>
 #include <iostream>
 
