@@ -10,6 +10,8 @@ holang is a experimental scripting language inspired by Ruby, Go, Elixir and C++
 ## Build
 
 ```
+mkdir build; cd $_
+cmake ..
 make
 ```
 

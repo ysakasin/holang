@@ -1,6 +1,6 @@
 #pragma once
 
-#include "./object.h"
+#include "holang/object.h"
 
 class String : public Object {
 public:

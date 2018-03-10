@@ -1,4 +1,4 @@
-#include "./holang.h"
+#include "holang.h"
 #include <iostream>
 #include <map>
 #include <string>
@@ -14,7 +14,7 @@ static map<string, Keyword> keywords;
 
 #define keyword(name, word) keywords[#word] = name;
 void init_keywords() {
-#include "./keyword.inc"
+#include "holang/keyword.inc"
 }
 #undef keyword
 

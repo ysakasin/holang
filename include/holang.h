@@ -17,13 +17,13 @@ enum TokenType {
 
 #define keyword(name, _) name,
 enum Keyword {
-#include "./keyword.inc"
+#include "holang/keyword.inc"
 };
 #undef keyword
 
 #define keyword(_, word) #word,
 const std::string KEYWORD_S[] = {
-#include "./keyword.inc"
+#include "holang/keyword.inc"
 };
 #undef keyword
 
@@ -39,13 +39,13 @@ struct Token {
 
 #define opcode(name) name,
 enum OpCode {
-#include "./opcode.inc"
+#include "holang/opcode.inc"
 };
 #undef opcode
 
 #define opcode(name) #name,
 const std::string OPCODE_S[] = {
-#include "./opcode.inc"
+#include "holang/opcode.inc"
 };
 #undef opcode
 
@@ -87,7 +87,7 @@ enum ValueType {
 class Object;
 struct Func;
 
-#include "./object.h"
+#include "holang/object.h"
 
 struct Value {
   ValueType type;
@@ -139,7 +139,7 @@ struct Func {
   Func(const std::vector<Code> &body) : type(FUSERDEF), body(body) {}
 };
 
-#include "./object.h"
+#include "holang/object.h"
 
 void print_token(const Token *token);
 Node *parse(const std::vector<Token *> &chain);

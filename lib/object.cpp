@@ -1,5 +1,5 @@
-#include "./object.h"
-#include "./holang.h"
+#include "holang/object.h"
+#include "holang.h"
 
 Func *Object::find_method(const std::string &method_name) {
   auto it = methods.find(method_name);
