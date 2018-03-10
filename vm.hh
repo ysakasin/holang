@@ -29,6 +29,13 @@ Value print_func(Value *, Value *args, int argc) {
 
 Value next_func(Value *self, Value *, int) { return Value(self->ival + 1); }
 
+Value reverse_func(Value *self, Value *, int) {
+  String *str = (String *)self->objval;
+  std::string rev = str->str;
+  std::reverse(rev.begin(), rev.end());
+  return Value((Object *)new String(rev));
+}
+
 class HolangVM {
   using Codes = std::vector<Code>;
 
@@ -46,6 +53,10 @@ public:
     // klass_env["Int"] = new Klass("Int");
     NativeFunc next_native = next_func;
     Klass::Int.set_method("next", new Func(next_native));
+    Klass::String.set_method("reverse", new Func((NativeFunc)reverse_func));
+
+    main_obj->set_field("Int", &Klass::Int);
+    main_obj->set_field("String", &Klass::String);
   }
   void eval() {
     while (pc < codes->size()) {
@@ -98,6 +109,12 @@ public:
         break;
       case OP_JUMP_IFNOT:
         jump_ifnot();
+        break;
+      case OP_LOAD_CLASS:
+        load_class();
+        break;
+      case OP_PREV_ENV:
+        prev_env();
         break;
       default:
         std::cerr << "not implemented: " << OPCODE_S[op] << std::endl;
@@ -251,6 +268,27 @@ private:
       pc = to.ival;
     }
   }
+  void load_class() {
+    const std::string *klass_name = take_code().sval;
+    auto *self = stack[ep].objval;
+    auto it = self->fields.find(*klass_name);
+    Klass *klass;
+    if (it == self->fields.end()) {
+      klass = new Klass(*klass_name);
+      self->set_field(*klass_name, klass);
+    } else {
+      klass = (Klass *)it->second;
+    }
+    stack_push(klass);
+
+    save_ep();
+    ep = sp - 1;
+  }
+
+  void prev_env() {
+    sp = ep + 1;
+    load_ep();
+  }
 
   void stack_push(int x) { stack_push(Value(x)); }
   void stack_push(double x) { stack_push(Value(x)); }
@@ -265,11 +303,16 @@ private:
 
   Code take_code() { return codes->at(pc++); }
   void save_current_codes() { prev_code.push_back({codes, pc}); }
+  void save_ep() { prev_ep.push_back(ep); }
   void load_prev_codes() {
     auto prev = prev_code.back();
     prev_code.pop_back();
     codes = prev.first;
     pc = prev.second;
+  }
+  void load_ep() {
+    ep = prev_ep.back();
+    prev_ep.pop_back();
   }
 
 private:

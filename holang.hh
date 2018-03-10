@@ -73,7 +73,7 @@ enum NodeType {
 struct Node {
   NodeType type;
   virtual void print(int offset){};
-  virtual void code_gen(std::vector<Code> *codes){};
+  virtual void code_gen(std::vector<Code> *codes) = 0;
   Node(NodeType type) : type(type){};
 };
 

@@ -8,12 +8,13 @@ Func *Object::find_method(const std::string &method_name) {
   } else if (klass != nullptr) {
     return klass->find_method(method_name);
   } else {
-    std::cerr << "method unmatch" << std::endl;
+    std::cerr << "method unmatch: " << method_name << std::endl;
     exit(1);
   }
 }
 
 Klass Klass::Int{"Int"};
+Klass Klass::String{"String"};
 
 Func *Value::find_method(const std::string &name) {
   switch (type) {

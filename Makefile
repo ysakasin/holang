@@ -7,7 +7,7 @@ CXXFLAGS := -std=c++11 -Wall
 .PHONY: all
 all: ho
 
-ho: $(CC_SRC) $(HH_SRC)
+ho: $(CC_SRC) $(HH_SRC) $(INC_SRC)
 	$(CXX) $(CXXFLAGS) -o $@ $(CC_SRC)
 
 .PHONY: g

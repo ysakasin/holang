@@ -313,6 +313,27 @@ struct FuncDefNode : public Node {
   }
 };
 
+struct KlassDefNode : public Node {
+  string name;
+  Node *body;
+  KlassDefNode(const string &name, Node *body)
+      : Node(AST_STMTS), name(name), body(body) {}
+  virtual void print(int offset) {
+    print_offset(offset);
+    cout << "KlassDef " << name << endl;
+    body->print(offset + 1);
+  }
+
+  virtual void code_gen(vector<Code> *codes) {
+    codes->push_back({OP_LOAD_CLASS});
+    codes->push_back({.sval = &name});
+
+    body->code_gen(codes);
+
+    codes->push_back({OP_PREV_ENV});
+  }
+};
+
 void should(Node *node, NodeType type) {
   if (node->type != type) {
     cerr << "unexpected type _ should" << endl;
@@ -507,6 +528,17 @@ Node *read_funcdef() {
   return new FuncDefNode(*ident->sval, args, body);
 }
 
+Node *read_klassdef() {
+  Token *ident = get();
+  vector<string> args;
+  take_keyword(KBRACEL);
+  Node *body = read_stmts();
+  maybe(TNEWLINE);
+  take_keyword(KBRACER);
+  maybe(TNEWLINE);
+  return new KlassDefNode(*ident->sval, body);
+}
+
 Node *read_stmt() {
   maybe(TNEWLINE);
   if (next_token(KIF)) {
@@ -523,6 +555,8 @@ Node *read_stmt() {
     return node;
   } else if (next_token(KFUNC)) {
     return read_funcdef();
+  } else if (next_token(KCLASS)) {
+    return read_klassdef();
   }
   Node *node = read_assignment_expr();
   maybe(TNEWLINE);

@@ -1,0 +1,12 @@
+class Int {
+  func prev() {
+    100
+  }
+}
+class String {
+  func hoge() {
+    "hoge"
+  }
+}
+print(1.prev())
+print("foo".hoge())
