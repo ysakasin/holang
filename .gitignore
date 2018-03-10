@@ -3,3 +3,4 @@ test.cpp
 *.o
 a.out
 *.dSYM
+.vscode/
