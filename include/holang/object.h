@@ -1,11 +1,14 @@
 #pragma once
 
+#include "holang/code.h"
 #include <iostream>
 #include <map>
 #include <string>
+#include <vector>
 
 class Klass;
 struct Func;
+struct Value;
 
 class Object {
 public:
@@ -32,4 +35,23 @@ public:
   Klass(const char name[]) : name(name) {}
   static Klass Int;
   static Klass String;
+};
+
+enum FuncType {
+  FBUILTIN,
+  FUSERDEF,
+};
+
+using NativeFunc = std::function<Value(Value *, Value *, int)>;
+
+struct Func {
+  FuncType type;
+  NativeFunc native;
+  std::vector<Code> body;
+
+  // Func() {}
+  Func(const Func &func)
+      : type(func.type), native(func.native), body(func.body) {}
+  Func(NativeFunc native) : type(FBUILTIN), native(native) {}
+  Func(const std::vector<Code> &body) : type(FUSERDEF), body(body) {}
 };
