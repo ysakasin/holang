@@ -1,4 +1,4 @@
-codes="fib.ho test.ho sample.ho method.ho"
+codes=`find examples/*.ho`
 
 pass=0
 fail=0
