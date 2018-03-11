@@ -410,6 +410,8 @@ void read_exprs(vector<Node *> &args) {
   }
 }
 
+Node *read_block();
+
 Node *read_funccall() {
   Token *ident = get();
   if (next_token(KPARENL)) {
@@ -449,6 +451,10 @@ Node *read_prime() {
     take_keyword(KPARENL);
     // read_exprs(args);
     take_keyword(KPARENR);
+
+    if (next_token(KBRACEL)) {
+      Node *block = read_block();
+    }
     node = new FuncCallNode(*token->sval, node, args);
   }
   return node;
@@ -537,6 +543,12 @@ Node *read_klassdef() {
   take_keyword(KBRACER);
   maybe(TNEWLINE);
   return new KlassDefNode(*ident->sval, body);
+}
+
+Node *read_block() {
+  Node *node = read_stmts();
+  take_keyword(KBRACER);
+  return node;
 }
 
 Node *read_stmt() {
