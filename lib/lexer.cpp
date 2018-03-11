@@ -6,10 +6,6 @@
 
 using namespace std;
 
-const string TOKEN_TYPE_S[] = {
-    "NUMBER", "KEYWORD", "IDENT", "NEWLINE", "EOF",
-};
-
 static map<string, Keyword> keywords;
 
 #define keyword(name, word) keywords[#word] = name;
@@ -22,6 +18,7 @@ int code_head;
 string code_str;
 int line;
 int line_head;
+int t_head;
 
 char nextc() { return code_str[code_head]; }
 
@@ -102,6 +99,7 @@ bool isblank(char c) { return c == ' ' || c == '\t'; }
 void skip_blank() {
   char c = readc();
   while (isblank(c)) {
+    t_head++;
     c = readc();
   }
   unreadc();
@@ -143,7 +141,7 @@ Token *take_token() {
     return make_keyword(KDOT);
   case '\n':
     line++;
-    line_head = code_head - 1;
+    line_head = code_head;
     return make_newline();
   case '\0':
     return make_eof();
@@ -164,24 +162,15 @@ int lex(const string &code, vector<Token *> &token_chain) {
   while (code_head < code.length() + 1) {
     Token *token = take_token();
     token->line = line;
-    token->column = code_head - line_head;
+    token->column = t_head - line_head + 1;
     token_chain.push_back(token);
+    t_head = code_head;
   }
   return 0;
 }
 
 void print_token(const Token *token) {
-  cout << TOKEN_TYPE_S[token->type] << "\t";
-  switch (token->type) {
-  case TNUMBER:
-  case TIDENT:
-    cout << *token->sval;
-    break;
-  case TKEYWORD:
-    cout << KEYWORD_S[token->keyword];
-    break;
-  default:;
-  }
+  cout << token << "\t ";
   cout << "(" << token->line << "," << token->column << ")" << endl;
 }
 
