@@ -1,4 +1,5 @@
 #include "holang.h"
+#include "holang/parser.h"
 #include "holang/vm.h"
 #include <fstream>
 #include <iostream>
@@ -25,8 +26,9 @@ int main(int argc, char *argv[]) {
 
   vector<Token *> token_chain;
   lex(code, token_chain);
-  // print_token_chain(token_chain);
-  Node *root = parse(token_chain);
+
+  holang::Parser parser(token_chain);
+  Node *root = parser.parse();
   vector<Code> codes;
   // codes.push_back({.op = OP_PUT_ENV});
   // codes.push_back({.ival = 0});

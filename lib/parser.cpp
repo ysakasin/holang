@@ -1,9 +1,11 @@
+#include "holang/parser.h"
 #include "holang.h"
 #include <iostream>
 #include <map>
 #include <vector>
 
 using namespace std;
+using namespace holang;
 
 static vector<Token *> token_chain;
 // static vector<string> local_idents;
@@ -334,91 +336,50 @@ struct KlassDefNode : public Node {
   }
 };
 
-void should(Node *node, NodeType type) {
-  if (node->type != type) {
-    cerr << "unexpected type _ should" << endl;
-    exit(1);
-  }
-}
-void should(Token *token, TokenType type) {
-  if (token->type != type) {
-    INVALID(should_token);
-  }
-}
-bool expect(TokenType type) { return token_chain[token_head]->type == type; }
-bool expect(Keyword keyword) {
-  Token *token = token_chain[token_head];
-  return token->type == TKEYWORD && token->keyword == keyword;
-}
-Token *get() { return token_chain[token_head++]; }
-Token *get(TokenType type) {
-  Token *token = get();
-  should(token, type);
-  return token;
-}
-void unget() { token_head--; }
-
-void take(TokenType type) {
+void Parser::take(TokenType type) {
   Token *token = get();
   if (token->type != type) {
-    cerr << "unexpected token" << endl;
-    exit(1);
+    exit_by_unexpected(type, token);
   }
 }
 
-void take_keyword(Keyword keyword) {
+void Parser::take(Keyword keyword) {
   Token *token = get();
   if (token->type != TKEYWORD || token->keyword != keyword) {
-    cerr << endl;
-    cerr << keyword << endl;
-    print_token(token);
-    INVALID(token);
+    exit_by_unexpected(keyword, token);
   }
 }
 
-bool next_token(Keyword keyword) {
-  Token *token = get();
-  if (token->type == TKEYWORD && token->keyword == keyword) {
-    return true;
+void Parser::consume_newlines() {
+  while (next_token(TNEWLINE)) {
   }
-  unget();
-  return false;
 }
 
-Node *read_number() {
+Node *Parser::read_number() {
   Token *token = get();
   int val = stoi(*token->sval);
   return new IntLiteralNode(val);
 }
 
-Node *read_string() {
+Node *Parser::read_string() {
   Token *token = get();
   return new StringLiteralNode(*token->sval);
 }
 
-// Node *read_ident() {
-//   Token *token = get();
-//   return new IdentNode(*token->sval);
-// }
-
-Node *read_expr();
-
-void read_exprs(vector<Node *> &args) {
+void Parser::read_exprs(vector<Node *> &args) {
   args.push_back(read_expr());
   while (next_token(KCOMMA)) {
     args.push_back(read_expr());
   }
 }
 
-Node *read_block();
-
-Node *read_funccall() {
+Node *Parser::read_funccall() {
   Token *ident = get();
   if (next_token(KPARENL)) {
     vector<Node *> args;
     if (!next_token(KPARENR)) {
       read_exprs(args);
-      take_keyword(KPARENR);
+      take(KPARENR);
     }
     return new FuncCallNode(*ident->sval, args);
   } else {
@@ -426,33 +387,31 @@ Node *read_funccall() {
   }
 }
 
-Node *read_prime() {
+Node *Parser::read_prime() {
   Node *node;
-  if (expect(TNUMBER))
+  if (is_next(TNUMBER)) {
     node = read_number();
-  else if (expect(TIDENT)) {
+  } else if (is_next(TIDENT)) {
     node = read_funccall();
-  } else if (next_token(KTRUE))
+  } else if (next_token(KTRUE)) {
     node = new BoolLiteralNode(true);
-  else if (next_token(KFALSE))
+  } else if (next_token(KFALSE)) {
     node = new BoolLiteralNode(false);
-  else if (expect(TSTRING))
+  } else if (is_next(TSTRING)) {
     node = read_string();
-  else {
-    cout << endl;
-    print_token(get());
-    INVALID(read_prime);
+  } else {
+    exit_by_unexpected("something prime", get());
   }
 
   while (next_token(KDOT)) {
     Token *token = get();
     vector<Node *> args;
-    should(token, TIDENT);
-    take_keyword(KPARENL);
+    // should(token, TIDENT);
+    take(KPARENL);
     // read_exprs(args);
-    take_keyword(KPARENR);
+    take(KPARENR);
 
-    if (next_token(KBRACEL)) {
+    if (is_next(KBRACEL)) {
       Node *block = read_block();
     }
     node = new FuncCallNode(*token->sval, node, args);
@@ -464,7 +423,7 @@ Node *ast_binop(Keyword op, Node *lhs, Node *rhs) {
   return new BinopNode(op, lhs, rhs);
 }
 
-Node *read_multiplicative_expr() {
+Node *Parser::read_multiplicative_expr() {
   Node *node = read_prime();
   while (true) {
     if (next_token(KMUL))
@@ -476,7 +435,7 @@ Node *read_multiplicative_expr() {
   }
 }
 
-Node *read_additive_expr() {
+Node *Parser::read_additive_expr() {
   Node *node = read_multiplicative_expr();
   while (true) {
     if (next_token(KADD))
@@ -488,7 +447,7 @@ Node *read_additive_expr() {
   }
 }
 
-Node *read_comp_expr() {
+Node *Parser::read_comp_expr() {
   Node *node = read_additive_expr();
   if (next_token(KLT))
     return ast_binop(KLT, node, read_additive_expr());
@@ -498,112 +457,100 @@ Node *read_comp_expr() {
     return node;
 }
 
-Node *read_assignment_expr() {
-  Node *node = read_comp_expr();
-  if (next_token(KASSIGN)) {
-    should(node, AST_IDENT);
-    node = new AssignNode((IdentNode *)node, read_assignment_expr());
+Node *Parser::read_assignment_expr() {
+  Token *token = get();
+  if (token->type == TIDENT && next_token(KASSIGN)) {
+    return new AssignNode(new IdentNode(*token->sval), read_assignment_expr());
   }
-  return node;
+  unget();
+  return read_comp_expr();
 }
 
-Node *read_expr() { return read_assignment_expr(); }
+Node *Parser::read_expr() { return read_assignment_expr(); }
 
-void maybe(TokenType type) {
-  if (expect(type))
-    get();
-}
-
-Node *read_stmts();
-Node *read_stmt();
-
-Node *read_funcdef() {
+Node *Parser::read_funcdef() {
   Token *ident = get();
   vector<string> args;
-  take_keyword(KPARENL);
+  take(KPARENL);
   if (!next_token(KPARENR)) {
-    Token *token = get(TIDENT);
+    Token *token = get_ident();
     args.push_back(*token->sval);
-    while (next_token(KCOMMA)) {
-      token = get(TIDENT);
+    while (is_next(KCOMMA)) {
+      token = get_ident();
       args.push_back(*token->sval);
     }
-    take_keyword(KPARENR);
+    take(KPARENR);
   }
   Node *body = read_stmt();
   return new FuncDefNode(*ident->sval, args, body);
 }
 
-Node *read_klassdef() {
+Node *Parser::read_klassdef() {
   Token *ident = get();
   vector<string> args;
-  take_keyword(KBRACEL);
+  take(KBRACEL);
+  consume_newlines();
   Node *body = read_stmts();
-  maybe(TNEWLINE);
-  take_keyword(KBRACER);
-  maybe(TNEWLINE);
+  consume_newlines();
+  take(KBRACER);
+  consume_newlines();
   return new KlassDefNode(*ident->sval, body);
 }
 
-Node *read_block() {
+Node *Parser::read_block() {
+  take(KBRACEL);
   Node *node = read_stmts();
-  take_keyword(KBRACER);
+  take(KBRACER);
   return node;
 }
 
-Node *read_stmt() {
-  maybe(TNEWLINE);
-  if (next_token(KIF)) {
-    Node *node = read_assignment_expr();
-    maybe(TNEWLINE);
-    Node *then = read_stmt();
-    Node *els = next_token(KELSE) ? maybe(TNEWLINE), read_stmt() : nullptr;
-    return new IfNode(node, then, els);
-  } else if (next_token(KBRACEL)) {
-    Node *node = read_stmts();
-    maybe(TNEWLINE);
-    take_keyword(KBRACER);
-    maybe(TNEWLINE);
-    return node;
-  } else if (next_token(KFUNC)) {
-    return read_funcdef();
-  } else if (next_token(KCLASS)) {
-    return read_klassdef();
-  }
+Node *Parser::read_if() {
   Node *node = read_assignment_expr();
-  maybe(TNEWLINE);
+  Node *then = read_stmt();
+  Node *els = next_token(KELSE) ? consume_newlines(), read_stmt() : nullptr;
+  return new IfNode(node, then, els);
+}
+
+Node *Parser::read_stmt() {
+  Node *node;
+  if (next_token(KIF)) {
+    node = read_if();
+  } else if (next_token(KBRACEL)) {
+    consume_newlines();
+    node = read_stmts();
+    consume_newlines();
+    take(KBRACER);
+  } else if (next_token(KFUNC)) {
+    node = read_funcdef();
+  } else if (next_token(KCLASS)) {
+    node = read_klassdef();
+  } else {
+    node = read_expr();
+  }
+  consume_newlines();
   return node;
 }
 
-Node *read_stmts() {
+Node *Parser::read_stmts() {
   Node *node = read_stmt();
-  while (!(expect(TEOF) || expect(KBRACER))) {
+  while (!(is_eof() || is_next(KBRACER))) {
     node = new StmtsNode(node, read_stmt());
   }
   return node;
 }
 
-Node *read_toplevel() {
+Node *Parser::read_toplevel() {
   Node *node = read_stmts();
   take(TEOF);
   return node;
 }
 
-void print_node(Node *node) { cout << "print_node" << endl; }
-
-Node *parse(const vector<Token *> &chain) {
-  token_chain = chain;
-  token_head = 0;
-  if (expect(TEOF)) {
+Node *Parser::parse() {
+  if (is_eof()) {
     exit(0);
   }
-  // if (!expect(TNUMBER)) {
-  //   cerr << "invalid parse" << endl;
-  //   exit(1);
-  // }
+
   Node *root = read_toplevel();
-  root->print(0);
-  cout << endl;
   return root;
 }
 
