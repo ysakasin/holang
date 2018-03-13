@@ -13,7 +13,8 @@ print(a + b, a, b, false)
 print(true)
 func print_wrap(obj) {
   print(obj)
-  if obj > 0 
+  if obj > 0 {
     print_wrap(obj - 1)
+  }
 }
 print_wrap(10)

@@ -4,7 +4,7 @@ pass=0
 fail=0
 for src in $codes; do
   printf "$src: "
-  ./ho $src 1> /dev/null
+  build/ho $src 1> /dev/null
   if [ $? = 0 ]; then
     printf "\e[32m"
     echo "PASS"
