@@ -3,7 +3,7 @@
 #include <string>
 
 #define opcode(name) name,
-enum OpCode {
+enum class Instruction {
 #include "holang/opcode.inc"
 };
 #undef opcode
@@ -17,7 +17,7 @@ const std::string OPCODE_S[] = {
 class Object;
 
 union Code {
-  OpCode op;
+  Instruction op;
   int ival;
   double dval;
   bool bval;

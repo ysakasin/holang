@@ -62,62 +62,63 @@ public:
     while (pc < codes->size()) {
       auto op = take_code().op;
       switch (op) {
-      case OP_ADD:
+      case Instruction::ADD:
         binop_add();
         break;
-      case OP_SUB:
+      case Instruction::SUB:
         binop_sub();
         break;
-      case OP_LESS:
+      case Instruction::LESS:
         binop_less();
         break;
-      case OP_POP:
+      case Instruction::POP:
         sp--;
         break;
-      case OP_LOAD_INT:
+      case Instruction::LOAD_INT:
         load_int();
         break;
-      case OP_LOAD_BOOL:
+      case Instruction::LOAD_BOOL:
         load_bool();
         break;
-      case OP_LOAD_STRING:
+      case Instruction::LOAD_STRING:
         load_string();
         break;
-      case OP_LOCAL_LOAD:
+      case Instruction::LOCAL_LOAD:
         local_load();
         break;
-      case OP_LOCAL_STORE:
+      case Instruction::LOCAL_STORE:
         local_store();
         break;
-      case OP_DEF_FUNC:
+      case Instruction::DEF_FUNC:
         def_func();
         break;
-      case OP_CALL_FUNC:
+      case Instruction::CALL_FUNC:
         call_func();
         break;
-      case OP_RET:
+      case Instruction::RET:
         func_ret();
         break;
-      case OP_PUT_SELF:
+      case Instruction::PUT_SELF:
         put_self();
         break;
-      case OP_JUMP:
+      case Instruction::JUMP:
         jump();
         break;
-      case OP_JUMP_IF:
+      case Instruction::JUMP_IF:
         jump_if();
         break;
-      case OP_JUMP_IFNOT:
+      case Instruction::JUMP_IFNOT:
         jump_ifnot();
         break;
-      case OP_LOAD_CLASS:
+      case Instruction::LOAD_CLASS:
         load_class();
         break;
-      case OP_PREV_ENV:
+      case Instruction::PREV_ENV:
         prev_env();
         break;
       default:
-        std::cerr << "not implemented: " << OPCODE_S[op] << std::endl;
+
+        std::cerr << "not implemented: " << OPCODE_S[static_cast<int>(op)].c_str() << std::endl;
         exit(1);
       }
     }

@@ -71,7 +71,7 @@ struct IntLiteralNode : public Node {
     cout << "IntLiteral " << value << "" << endl;
   }
   virtual void code_gen(vector<Code> *codes) {
-    codes->push_back({.op = OP_LOAD_INT});
+    codes->push_back({.op = Instruction::LOAD_INT});
     codes->push_back({.ival = value});
   }
 };
@@ -89,7 +89,7 @@ struct BoolLiteralNode : public Node {
     cout << "BoolLiteral " << BOOL_S[value] << endl;
   }
   virtual void code_gen(vector<Code> *codes) {
-    codes->push_back({.op = OP_LOAD_BOOL});
+    codes->push_back({.op = Instruction::LOAD_BOOL});
     codes->push_back({.bval = value});
   }
 };
@@ -102,7 +102,7 @@ struct StringLiteralNode : public Node {
     cout << "StringLiteral \"" << str << "\"" << endl;
   }
   virtual void code_gen(vector<Code> *codes) {
-    codes->push_back({.op = OP_LOAD_STRING});
+    codes->push_back({.op = Instruction::LOAD_STRING});
     codes->push_back({.sval = &str});
   }
 };
@@ -116,25 +116,25 @@ struct IdentNode : public Node {
   }
   virtual void code_gen(vector<Code> *codes) {
     // cout << ident << ":" << local_ident_table.get(ident) << endl;
-    codes->push_back({.op = OP_LOCAL_LOAD});
+    codes->push_back({.op = Instruction::LOCAL_LOAD});
     codes->push_back({.ival = local_ident_table.get(ident)});
   }
 };
 
-OpCode to_opcode(char c) {
+Instruction to_opcode(char c) {
   switch (c) {
   case KADD:
-    return OP_ADD;
+    return Instruction::ADD;
   case KSUB:
-    return OP_SUB;
+    return Instruction::SUB;
   case KMUL:
-    return OP_MUL;
+    return Instruction::MUL;
   case KDIV:
-    return OP_DIV;
+    return Instruction::DIV;
   case KLT:
-    return OP_LESS;
+    return Instruction::LESS;
   case KGT:
-    return OP_GREATER;
+    return Instruction::GREATER;
   default:
     cerr << "err: to_opecode" << endl;
     exit(1);
@@ -172,7 +172,7 @@ struct AssignNode : public Node {
   virtual void code_gen(vector<Code> *codes) {
     rhs->code_gen(codes);
     // cout << lhs->ident << ":" << local_ident_table.get(lhs->ident) << endl;
-    codes->push_back({.op = OP_LOCAL_STORE});
+    codes->push_back({.op = Instruction::LOCAL_STORE});
     codes->push_back({.ival = local_ident_table.get(lhs->ident)});
   }
 };
@@ -204,7 +204,7 @@ struct StmtsNode : public Node {
   }
   virtual void code_gen(vector<Code> *codes) {
     current->code_gen(codes);
-    codes->push_back({OP_POP});
+    codes->push_back({Instruction::POP});
     next->code_gen(codes);
   }
 };
@@ -232,18 +232,18 @@ struct IfNode : public Node {
     cond->code_gen(codes);
 
     int from_if = codes->size() + 1;
-    codes->push_back({OP_JUMP_IFNOT});
+    codes->push_back({Instruction::JUMP_IFNOT});
     codes->push_back({.ival = 0}); // dummy
     then->code_gen(codes);
 
     int from_then = codes->size() + 1;
-    codes->push_back({OP_JUMP});
+    codes->push_back({Instruction::JUMP});
     codes->push_back({.ival = 0}); // dummy
 
     int to_else = codes->size();
     if (els == nullptr) {
       // nilの概念ができたらnilにする
-      codes->push_back({OP_LOAD_INT});
+      codes->push_back({Instruction::LOAD_INT});
       codes->push_back({.ival = 0});
     } else {
       els->code_gen(codes);
@@ -274,13 +274,13 @@ struct FuncCallNode : public Node {
     if (self != nullptr) {
       self->code_gen(codes);
     } else {
-      codes->push_back({OP_PUT_SELF});
+      codes->push_back({Instruction::PUT_SELF});
     }
 
     for (Node *arg : args) {
       arg->code_gen(codes);
     }
-    codes->push_back({OP_CALL_FUNC});
+    codes->push_back({Instruction::CALL_FUNC});
     codes->push_back({.sval = &name});
     codes->push_back({.ival = (int)args.size()});
   }
@@ -306,8 +306,8 @@ struct FuncDefNode : public Node {
     }
     body->code_gen(&body_code);
     // cout << "def:" << body_code.size() << endl;
-    body_code.push_back({OP_RET});
-    codes->push_back({OP_DEF_FUNC});
+    body_code.push_back({Instruction::RET});
+    codes->push_back({Instruction::DEF_FUNC});
     codes->push_back({.sval = &name});
     codes->push_back({.objval = (Object *)new Func(body_code)});
     // set_func(name, new Func(body_code));
@@ -315,7 +315,7 @@ struct FuncDefNode : public Node {
 
     // print_code(body_code);
 
-    // codes->push_back({OP_LOAD_BOOL});
+    // codes->push_back({Instruction::LOAD_BOOL});
     // codes->push_back({.bval = true});
   }
 };
@@ -332,12 +332,12 @@ struct KlassDefNode : public Node {
   }
 
   virtual void code_gen(vector<Code> *codes) {
-    codes->push_back({OP_LOAD_CLASS});
+    codes->push_back({Instruction::LOAD_CLASS});
     codes->push_back({.sval = &name});
 
     body->code_gen(codes);
 
-    codes->push_back({OP_PREV_ENV});
+    codes->push_back({Instruction::PREV_ENV});
   }
 };
 
@@ -683,52 +683,53 @@ void print_code(const vector<Code> &codes) {
   for (int i = 0; i < codes.size();) {
     printf("%2d: ", i);
     auto op = codes[i++].op;
+    const char *op_str = OPCODE_S[static_cast<int>(op)].c_str();
     switch (op) {
-    case OP_PUT_ENV:
-      printf("%s %d\n", OPCODE_S[op].c_str(), codes[i++].ival);
+    case Instruction::PUT_ENV:
+      printf("%s %d\n", op_str, codes[i++].ival);
       break;
-    case OP_LOAD_INT:
-      printf("%s %d\n", OPCODE_S[op].c_str(), codes[i++].ival);
+    case Instruction::LOAD_INT:
+      printf("%s %d\n", op_str, codes[i++].ival);
       break;
-    case OP_LOAD_BOOL:
-      printf("%s %d\n", OPCODE_S[op].c_str(), codes[i++].bval);
+    case Instruction::LOAD_BOOL:
+      printf("%s %d\n", op_str, codes[i++].bval);
       break;
-    case OP_LOAD_STRING:
-      printf("%s %s\n", OPCODE_S[op].c_str(), codes[i++].sval->c_str());
+    case Instruction::LOAD_STRING:
+      printf("%s %s\n", op_str, codes[i++].sval->c_str());
       break;
-    case OP_POP:
-    case OP_ADD:
-    case OP_SUB:
-    case OP_MUL:
-    case OP_DIV:
-    case OP_LESS:
-    case OP_GREATER:
-      printf("%s\n", OPCODE_S[op].c_str());
+    case Instruction::POP:
+    case Instruction::ADD:
+    case Instruction::SUB:
+    case Instruction::MUL:
+    case Instruction::DIV:
+    case Instruction::LESS:
+    case Instruction::GREATER:
+      printf("%s\n", op_str);
       break;
-    case OP_LOCAL_STORE:
-      printf("%s %d\n", OPCODE_S[op].c_str(), codes[i++].ival);
+    case Instruction::LOCAL_STORE:
+      printf("%s %d\n", op_str, codes[i++].ival);
       break;
-    case OP_LOCAL_LOAD:
-      printf("%s %d\n", OPCODE_S[op].c_str(), codes[i++].ival);
+    case Instruction::LOCAL_LOAD:
+      printf("%s %d\n", op_str, codes[i++].ival);
       break;
-    case OP_PUT_SELF:
-      printf("%s\n", OPCODE_S[op].c_str());
+    case Instruction::PUT_SELF:
+      printf("%s\n", op_str);
       break;
-    case OP_JUMP:
-    case OP_JUMP_IF:
-    case OP_JUMP_IFNOT:
-      printf("%s %d\n", OPCODE_S[op].c_str(), codes[i++].ival);
+    case Instruction::JUMP:
+    case Instruction::JUMP_IF:
+    case Instruction::JUMP_IFNOT:
+      printf("%s %d\n", op_str, codes[i++].ival);
       break;
-    case OP_RET:
-      printf("%s\n", OPCODE_S[op].c_str());
+    case Instruction::RET:
+      printf("%s\n", op_str);
       break;
-    case OP_DEF_FUNC:
-      printf("%s %s %d\n", OPCODE_S[op].c_str(), codes[i].sval->c_str(),
+    case Instruction::DEF_FUNC:
+      printf("%s %s %d\n", op_str, codes[i].sval->c_str(),
              codes[i + 1].ival);
       i += 2;
       break;
-    case OP_CALL_FUNC:
-      printf("%s %s %d\n", OPCODE_S[op].c_str(), codes[i].sval->c_str(),
+    case Instruction::CALL_FUNC:
+      printf("%s %s %d\n", op_str, codes[i].sval->c_str(),
              codes[i + 1].ival);
       i += 2;
       break;

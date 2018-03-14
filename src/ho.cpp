@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
   holang::Parser parser(token_chain);
   Node *root = parser.parse();
   vector<Code> codes;
-  // codes.push_back({.op = OP_PUT_ENV});
+  // codes.push_back({.op = Instruction::PUT_ENV});
   // codes.push_back({.ival = 0});
   root->code_gen(&codes);
   // codes[1].ival = size_local_idents();
