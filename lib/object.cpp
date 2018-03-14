@@ -18,9 +18,9 @@ Klass Klass::String{"String"};
 
 Func *Value::find_method(const std::string &name) {
   switch (type) {
-  case VOBJECT:
+  case Type::OBJECT:
     return objval->find_method(name);
-  case VINT:
+  case Type::INT:
     return Klass::Int.find_method(name);
   default:
     std::cerr << "find_method: " << this->to_s() << std::endl;

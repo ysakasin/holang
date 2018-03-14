@@ -141,14 +141,20 @@ private:
   void binop_add() {
     auto rhs = stack_pop();
     auto lhs = stack_pop();
-    if (lhs.type == VINT && rhs.type == VINT) {
+    if (lhs.type == Type::INT && rhs.type == Type::INT) {
       stack_push(lhs.ival + rhs.ival);
-      // } else if (lhs.type == VINT && rhs.type == VDOUBLE) {
-      //   stack->push_back(Value({VDOUBLE, .dval = lhs.ival op rhs.dval}));
-      // } else if (lhs.type == VDOUBLE && rhs.type == VINT) {
-      //   stack->push_back(Value({VDOUBLE, .dval = lhs.dval op rhs.ival}));
-      // } else if (lhs.type == VDOUBLE && rhs.type == VDOUBLE) {
-      //   stack->push_back(Value({VDOUBLE, .dval = lhs.dval op rhs.dval}));
+      // } else if (lhs.type == Type::INT && rhs.type == Type::DOUBLE)
+      // {
+      //   stack->push_back(Value({Type::DOUBLE, .dval = lhs.ival op
+      //   rhs.dval}));
+      // } else if (lhs.type == Type::DOUBLE && rhs.type == Type::INT)
+      // {
+      //   stack->push_back(Value({Type::DOUBLE, .dval = lhs.dval op
+      //   rhs.ival}));
+      // } else if (lhs.type == Type::DOUBLE && rhs.type ==
+      // Type::DOUBLE) {
+      //   stack->push_back(Value({Type::DOUBLE, .dval = lhs.dval op
+      //   rhs.dval}));
     } else {
       std::cerr << "can not cal +" << std::endl;
       std::cerr << rhs.to_s() << std::endl;
@@ -159,14 +165,20 @@ private:
   void binop_sub() {
     auto rhs = stack_pop();
     auto lhs = stack_pop();
-    if (lhs.type == VINT && rhs.type == VINT) {
+    if (lhs.type == Type::INT && rhs.type == Type::INT) {
       stack_push(lhs.ival - rhs.ival);
-      // } else if (lhs.type == VINT && rhs.type == VDOUBLE) {
-      //   stack->push_back(Value({VDOUBLE, .dval = lhs.ival op rhs.dval}));
-      // } else if (lhs.type == VDOUBLE && rhs.type == VINT) {
-      //   stack->push_back(Value({VDOUBLE, .dval = lhs.dval op rhs.ival}));
-      // } else if (lhs.type == VDOUBLE && rhs.type == VDOUBLE) {
-      //   stack->push_back(Value({VDOUBLE, .dval = lhs.dval op rhs.dval}));
+      // } else if (lhs.type == Type::INT && rhs.type == Type::DOUBLE)
+      // {
+      //   stack->push_back(Value({Type::DOUBLE, .dval = lhs.ival op
+      //   rhs.dval}));
+      // } else if (lhs.type == Type::DOUBLE && rhs.type == Type::INT)
+      // {
+      //   stack->push_back(Value({Type::DOUBLE, .dval = lhs.dval op
+      //   rhs.ival}));
+      // } else if (lhs.type == Type::DOUBLE && rhs.type ==
+      // Type::DOUBLE) {
+      //   stack->push_back(Value({Type::DOUBLE, .dval = lhs.dval op
+      //   rhs.dval}));
     } else {
       std::cerr << "can not cal -" << std::endl;
       std::cerr << rhs.to_s() << std::endl;
@@ -177,14 +189,20 @@ private:
   void binop_less() {
     auto rhs = stack_pop();
     auto lhs = stack_pop();
-    if (lhs.type == VINT && rhs.type == VINT) {
+    if (lhs.type == Type::INT && rhs.type == Type::INT) {
       stack_push(lhs.ival < rhs.ival);
-      // } else if (lhs.type == VINT && rhs.type == VDOUBLE) {
-      //   stack->push_back(Value({VDOUBLE, .dval = lhs.ival op rhs.dval}));
-      // } else if (lhs.type == VDOUBLE && rhs.type == VINT) {
-      //   stack->push_back(Value({VDOUBLE, .dval = lhs.dval op rhs.ival}));
-      // } else if (lhs.type == VDOUBLE && rhs.type == VDOUBLE) {
-      //   stack->push_back(Value({VDOUBLE, .dval = lhs.dval op rhs.dval}));
+      // } else if (lhs.type == Type::INT && rhs.type == Type::DOUBLE)
+      // {
+      //   stack->push_back(Value({Type::DOUBLE, .dval = lhs.ival op
+      //   rhs.dval}));
+      // } else if (lhs.type == Type::DOUBLE && rhs.type == Type::INT)
+      // {
+      //   stack->push_back(Value({Type::DOUBLE, .dval = lhs.dval op
+      //   rhs.ival}));
+      // } else if (lhs.type == Type::DOUBLE && rhs.type ==
+      // Type::DOUBLE) {
+      //   stack->push_back(Value({Type::DOUBLE, .dval = lhs.dval op
+      //   rhs.dval}));
     } else {
       std::cerr << "can not cal <" << std::endl;
       std::cerr << rhs.to_s() << std::endl;
