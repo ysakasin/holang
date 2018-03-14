@@ -40,6 +40,11 @@ static LocalIdentTable local_ident_table;
 
 int size_local_idents() { return local_ident_table.size(); }
 
+void exit_by_unsupported(const string &func) {
+  cerr << func << " are not supported yet." << endl;
+  exit(1);
+}
+
 // int get_stack_position(const string &ident) {
 //   auto iter = find(local_idents.begin(), local_idents.end(), ident);
 //   if (iter == local_idents.end()) {
@@ -283,10 +288,10 @@ struct FuncCallNode : public Node {
 
 struct FuncDefNode : public Node {
   string name;
-  vector<string> args;
+  vector<string *> params;
   Node *body;
-  FuncDefNode(const string &name, const vector<string> &args, Node *body)
-      : Node(AST_STMTS), name(name), args(args), body(body) {}
+  FuncDefNode(const string &name, const vector<string *> &params, Node *body)
+      : Node(AST_STMTS), name(name), params(params), body(body) {}
   virtual void print(int offset) {
     print_offset(offset);
     cout << "FuncDef " << name << endl;
@@ -296,8 +301,8 @@ struct FuncDefNode : public Node {
     vector<Code> body_code;
     local_ident_table.next();
 
-    for (const string &arg : args) {
-      local_ident_table.get(arg);
+    for (const string *param : params) {
+      local_ident_table.get(*param);
     }
     body->code_gen(&body_code);
     // cout << "def:" << body_code.size() << endl;
@@ -333,6 +338,73 @@ struct KlassDefNode : public Node {
     body->code_gen(codes);
 
     codes->push_back({OP_PREV_ENV});
+  }
+};
+
+struct SignChangeNode : public Node {
+  Node *body;
+  SignChangeNode(Node *body) : Node(AST_STMTS), body(body) {}
+  virtual void print(int offset) {
+    print_offset(offset);
+    cout << "SignChange" << endl;
+    body->print(offset + 1);
+  }
+
+  virtual void code_gen(vector<Code> *codes) {
+    exit_by_unsupported("SignChangeNode#code_gen()");
+  }
+};
+
+struct PrimeExprNode : public Node {
+  Node *prime;
+  Node *traier;
+  PrimeExprNode(Node *prime, Node *traier)
+      : Node(AST_STMTS), prime(prime), traier(traier) {}
+  virtual void print(int offset) {
+    prime->print(offset);
+    traier->print(offset + 1);
+  }
+
+  virtual void code_gen(vector<Code> *codes) {
+    prime->code_gen(codes);
+    traier->code_gen(codes);
+  }
+};
+
+struct RefFieldNode : public Node {
+  string *field;
+  Node *traier;
+  RefFieldNode(string *field, Node *traier)
+      : Node(AST_STMTS), field(field), traier(traier) {}
+  virtual void print(int offset) {
+    print_offset(offset);
+    cout << "." << *field << endl;
+    traier->print(offset + 1);
+  }
+
+  virtual void code_gen(vector<Code> *codes) {
+    exit_by_unsupported("PrimeExprNode#code_gen()");
+  }
+};
+
+struct SendNode : public Node {
+  vector<Node *> args;
+  Node *traier;
+  SendNode(const vector<Node *> &args, Node *traier)
+      : Node(AST_STMTS), args(args), traier(traier) {}
+  virtual void print(int offset) {
+    print_offset(offset);
+    cout << "Call" << endl;
+    // TODO: print args
+    traier->print(offset + 1);
+  }
+
+  virtual void code_gen(vector<Code> *codes) {
+    for (Node *arg : args) {
+      arg->code_gen(codes);
+    }
+    exit_by_unsupported("SendNode#code_gen()");
+    exit(1);
   }
 };
 
@@ -373,7 +445,7 @@ void Parser::read_exprs(vector<Node *> &args) {
   }
 }
 
-Node *Parser::read_funccall() {
+Node *Parser::read_name_or_funccall() {
   Token *ident = get();
   if (next_token(KPARENL)) {
     vector<Node *> args;
@@ -387,34 +459,55 @@ Node *Parser::read_funccall() {
   }
 }
 
+Node *Parser::read_ident() {
+  Token *token = get_ident();
+  return new IdentNode(*token->sval);
+}
+
 Node *Parser::read_prime() {
-  Node *node;
   if (is_next(TNUMBER)) {
-    node = read_number();
+    return read_number();
   } else if (is_next(TIDENT)) {
-    node = read_funccall();
+    return read_name_or_funccall();
   } else if (next_token(KTRUE)) {
-    node = new BoolLiteralNode(true);
+    return new BoolLiteralNode(true);
   } else if (next_token(KFALSE)) {
-    node = new BoolLiteralNode(false);
+    return new BoolLiteralNode(false);
   } else if (is_next(TSTRING)) {
-    node = read_string();
-  } else {
-    exit_by_unexpected("something prime", get());
+    return read_string();
+  }
+  exit_by_unexpected("something prime", get());
+  return nullptr;
+}
+
+void Parser::read_arglist(vector<Node *> *arglist) {
+  if (is_next(KPARENR)) {
+    return;
   }
 
-  while (next_token(KDOT)) {
-    Token *token = get();
-    vector<Node *> args;
-    // should(token, TIDENT);
-    take(KPARENL);
-    // read_exprs(args);
-    take(KPARENR);
+  Node *arg = read_expr();
+  arglist->emplace_back(arg);
+  while (next_token(KCOMMA)) {
+    arg = read_expr();
+    arglist->emplace_back(arg);
+  }
+}
 
-    if (is_next(KBRACEL)) {
-      Node *block = read_block();
+Node *Parser::read_traier() {
+  if (next_token(KDOT)) {
+    return read_name_or_funccall();
+  }
+  return nullptr;
+}
+
+Node *Parser::read_prime_expr() {
+  Node *node = read_prime();
+  while (true) {
+    Node *traier = read_traier();
+    if (traier == nullptr) {
+      break;
     }
-    node = new FuncCallNode(*token->sval, node, args);
+    node = new PrimeExprNode(node, traier);
   }
   return node;
 }
@@ -423,13 +516,21 @@ Node *ast_binop(Keyword op, Node *lhs, Node *rhs) {
   return new BinopNode(op, lhs, rhs);
 }
 
+Node *Parser::read_factor() {
+  if (next_token(KSUB)) {
+    return new SignChangeNode(read_prime_expr());
+  } else {
+    return read_prime_expr();
+  }
+}
+
 Node *Parser::read_multiplicative_expr() {
-  Node *node = read_prime();
+  Node *node = read_factor();
   while (true) {
     if (next_token(KMUL))
-      node = ast_binop(KMUL, node, read_prime());
+      node = ast_binop(KMUL, node, read_factor());
     else if (next_token(KDIV))
-      node = ast_binop(KDIV, node, read_prime());
+      node = ast_binop(KDIV, node, read_factor());
     else
       return node;
   }
@@ -468,32 +569,36 @@ Node *Parser::read_assignment_expr() {
 
 Node *Parser::read_expr() { return read_assignment_expr(); }
 
-Node *Parser::read_funcdef() {
-  Token *ident = get();
-  vector<string> args;
-  take(KPARENL);
-  if (!next_token(KPARENR)) {
-    Token *token = get_ident();
-    args.push_back(*token->sval);
-    while (is_next(KCOMMA)) {
-      token = get_ident();
-      args.push_back(*token->sval);
-    }
-    take(KPARENR);
+void Parser::read_params(vector<string *> *params) {
+  if (!is_next(TIDENT)) {
+    return;
   }
-  Node *body = read_stmt();
-  return new FuncDefNode(*ident->sval, args, body);
+
+  Token *token = get_ident();
+  params->emplace_back(token->sval);
+  while (next_token(KCOMMA)) {
+    token = get_ident();
+    params->emplace_back(token->sval);
+  }
+}
+
+Node *Parser::read_funcdef() {
+  take(KFUNC);
+  Token *ident = get_ident();
+
+  take(KPARENL);
+  vector<string *> params;
+  read_params(&params);
+  take(KPARENR);
+
+  Node *body = read_suite();
+  return new FuncDefNode(*ident->sval, params, body);
 }
 
 Node *Parser::read_klassdef() {
-  Token *ident = get();
-  vector<string> args;
-  take(KBRACEL);
-  consume_newlines();
-  Node *body = read_stmts();
-  consume_newlines();
-  take(KBRACER);
-  consume_newlines();
+  take(KCLASS);
+  Token *ident = get_ident();
+  Node *body = read_suite();
   return new KlassDefNode(*ident->sval, body);
 }
 
@@ -505,29 +610,45 @@ Node *Parser::read_block() {
 }
 
 Node *Parser::read_if() {
-  Node *node = read_assignment_expr();
-  Node *then = read_stmt();
-  Node *els = next_token(KELSE) ? consume_newlines(), read_stmt() : nullptr;
+  take(KIF);
+  Node *node = read_expr();
+  Node *then = read_suite();
+  Node *els = next_token(KELSE) ? read_stmt() : nullptr;
   return new IfNode(node, then, els);
+}
+
+Node *Parser::read_suite() {
+  Node *suite = nullptr;
+
+  take(KBRACEL);
+  consume_newlines();
+  while (!is_next(KBRACER)) {
+    Node *node = read_stmt();
+    consume_newlines();
+
+    if (suite != nullptr) {
+      suite = new StmtsNode(suite, node);
+    } else {
+      suite = node;
+    }
+  }
+  take(KBRACER);
+  return suite;
 }
 
 Node *Parser::read_stmt() {
   Node *node;
-  if (next_token(KIF)) {
+  if (is_next(KIF)) {
     node = read_if();
-  } else if (next_token(KBRACEL)) {
-    consume_newlines();
-    node = read_stmts();
-    consume_newlines();
-    take(KBRACER);
-  } else if (next_token(KFUNC)) {
+  } else if (is_next(KFUNC)) {
     node = read_funcdef();
-  } else if (next_token(KCLASS)) {
+  } else if (is_next(KCLASS)) {
     node = read_klassdef();
+  } else if (is_next(KBRACEL)) {
+    node = read_suite();
   } else {
     node = read_expr();
   }
-  consume_newlines();
   return node;
 }
 
@@ -540,19 +661,22 @@ Node *Parser::read_stmts() {
 }
 
 Node *Parser::read_toplevel() {
-  Node *node = read_stmts();
-  take(TEOF);
-  return node;
-}
+  Node *root = nullptr;
 
-Node *Parser::parse() {
-  if (is_eof()) {
-    exit(0);
+  while (!is_eof()) {
+    Node *node = read_stmt();
+    consume_newlines();
+
+    if (root != nullptr) {
+      root = new StmtsNode(root, node);
+    } else {
+      root = node;
+    }
   }
-
-  Node *root = read_toplevel();
   return root;
 }
+
+Node *Parser::parse() { return read_toplevel(); }
 
 void print_code(const vector<Code> &codes) {
   printf("---------- code ----------\n");

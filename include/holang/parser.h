@@ -28,9 +28,11 @@ private:
   void consume_newlines();
 
 private:
-  bool is_next(TokenType type) { return token_chain[head]->type == type; }
-  bool is_next(Keyword keyword) {
-    Token *token = token_chain[head];
+  bool is_next(TokenType type, int offset = 0) {
+    return token_chain[head - offset]->type == type;
+  }
+  bool is_next(Keyword keyword, int offset = 0) {
+    Token *token = token_chain[head - offset];
     return token->type == TKEYWORD && token->keyword == keyword;
   }
   bool is_eof() { return is_next(TEOF); }
@@ -62,19 +64,26 @@ private:
   Node *read_if();
   Node *read_funcdef();
   Node *read_klassdef();
+  Node *read_suite();
 
   Node *read_expr();
   Node *read_assignment_expr();
   Node *read_comp_expr();
   Node *read_multiplicative_expr();
   Node *read_additive_expr();
+  Node *read_factor();
+  Node *read_prime_expr();
+  Node *read_traier();
 
   Node *read_prime();
   Node *read_number();
   Node *read_string();
-  Node *read_funccall();
+  Node *read_name_or_funccall();
   Node *read_block();
+  Node *read_ident();
   void read_exprs(std::vector<Node *> &args);
+  void read_arglist(std::vector<Node *> *args);
+  void read_params(std::vector<std::string *> *params);
 
 private:
   void exit_by_unexpected(TokenType expect, Token *actual) {

@@ -1,0 +1,31 @@
+toplevel := (stmt NEWLINE)* EOF
+stmt := expr_stmt | if_stmt | funcdef | classdef | suite
+
+expr_stmt := expr
+expt := assign_expr
+assign_expr := [NAME "="] comp_expr
+comp_expr := arith_expr [comp_op arith_expr]
+comp_op := "<" | ">"
+arith_expr := term (arith_op term)*
+arith_op := "+" | "-"
+term := factor (term_op factor)*
+term_op := "*" | "/"
+factor := ["+"|"-"] prime_expr
+prime_expr := prime traier*
+
+prime := NAME | NUMBER | STRING+ | "true" | "false" | "nil" | array_lit | hashmap_lit | func_call
+array_lit := "[" [array_elems] "]"
+array_elems := expr ("," expr)*
+hashmap_lit := "{" [hashmap_elems] "}"
+hashmap_elems := NAME ":" expr ("," NAME ":" expt)*
+func_call := NAME "(" [arglist] ")" [block]
+
+traier := "." (NAME | func_call)
+arglist := expr ("," expr)*
+block := suite | "{" "|" [paramlist] "|" NEWLINE (stmt NEWLINE)* "}"
+
+if_stmt := "if" expr suite ("else" stmt)
+funcdef := "func" NAME "(" [paramlist] ")" ["sealed"] suite
+classdef := "class" NAME suite
+paramlist := NAME ("," NAME)*
+suite := "{" NEWLINE (stmt NEWLINE)* "}"
