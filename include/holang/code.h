@@ -1,18 +1,7 @@
 #pragma once
 
 #include <string>
-
-#define opcode(name) name,
-enum class Instruction {
-#include "holang/opcode.inc"
-};
-#undef opcode
-
-#define opcode(name) #name,
-const std::string OPCODE_S[] = {
-#include "holang/opcode.inc"
-};
-#undef opcode
+#include "holang/instruction.h"
 
 class Object;
 
