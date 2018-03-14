@@ -65,7 +65,7 @@ void print_offset(int offset) {
 
 struct IntLiteralNode : public Node {
   int value;
-  IntLiteralNode(int value) : Node(AST_INT_LITERAL), value(value){};
+  IntLiteralNode(int value) : value(value){};
   virtual void print(int offset) {
     print_offset(offset);
     cout << "IntLiteral " << value << "" << endl;
@@ -83,7 +83,7 @@ const string BOOL_S[] = {
 
 struct BoolLiteralNode : public Node {
   bool value;
-  BoolLiteralNode(bool value) : Node(AST_BOOL_LITERAL), value(value){};
+  BoolLiteralNode(bool value) : value(value){};
   virtual void print(int offset) {
     print_offset(offset);
     cout << "BoolLiteral " << BOOL_S[value] << endl;
@@ -96,7 +96,7 @@ struct BoolLiteralNode : public Node {
 
 struct StringLiteralNode : public Node {
   string str;
-  StringLiteralNode(const string &str) : Node(AST_BOOL_LITERAL), str(str){};
+  StringLiteralNode(const string &str) : str(str){};
   virtual void print(int offset) {
     print_offset(offset);
     cout << "StringLiteral \"" << str << "\"" << endl;
@@ -109,7 +109,7 @@ struct StringLiteralNode : public Node {
 
 struct IdentNode : public Node {
   string ident;
-  IdentNode(const string &ident) : Node(AST_IDENT), ident(ident) {}
+  IdentNode(const string &ident) : ident(ident) {}
   virtual void print(int offset) {
     print_offset(offset);
     cout << "Ident " << ident << endl;
@@ -145,7 +145,7 @@ struct BinopNode : public Node {
   Keyword op;
   Node *lhs, *rhs;
   BinopNode(Keyword op, Node *lhs, Node *rhs)
-      : Node(AST_BINOP), op(op), lhs(lhs), rhs(rhs) {}
+      : op(op), lhs(lhs), rhs(rhs) {}
   virtual void print(int offset) {
     print_offset(offset);
     cout << "Binop " << KEYWORD_S[op] << endl;
@@ -163,7 +163,7 @@ struct AssignNode : public Node {
   IdentNode *lhs;
   Node *rhs;
   AssignNode(IdentNode *ident, Node *rhs)
-      : Node(AST_ASSIGN), lhs(ident), rhs(rhs) {}
+      : lhs(ident), rhs(rhs) {}
   virtual void print(int offset) {
     print_offset(offset);
     cout << "Assign " << lhs->ident << endl;
@@ -182,7 +182,7 @@ struct ExprsNode : public Node {
   Node *next;
   int num;
   ExprsNode(Node *current, Node *next, int num)
-      : Node(AST_STMTS), current(current), next(next), num(num) {}
+      : current(current), next(next), num(num) {}
   virtual void print(int offset) {
     current->print(offset);
     next->print(offset);
@@ -197,7 +197,7 @@ struct StmtsNode : public Node {
   Node *current;
   Node *next;
   StmtsNode(Node *current, Node *next)
-      : Node(AST_STMTS), current(current), next(next) {}
+      : current(current), next(next) {}
   virtual void print(int offset) {
     current->print(offset);
     next->print(offset);
@@ -212,7 +212,7 @@ struct StmtsNode : public Node {
 struct IfNode : public Node {
   Node *cond, *then, *els;
   IfNode(Node *cond, Node *then, Node *els)
-      : Node(AST_IF), cond(cond), then(then), els(els) {}
+      : cond(cond), then(then), els(els) {}
   virtual void print(int offset) {
     print_offset(offset);
     cout << "if" << endl;
@@ -260,9 +260,9 @@ struct FuncCallNode : public Node {
   vector<Node *> args;
   Node *self;
   FuncCallNode(const string &name, const vector<Node *> &args)
-      : Node(AST_STMTS), name(name), args(args), self(nullptr) {}
+      : name(name), args(args), self(nullptr) {}
   FuncCallNode(const string &name, Node *self, const vector<Node *> &args)
-      : Node(AST_STMTS), name(name), args(args), self(self) {}
+      : name(name), args(args), self(self) {}
   virtual void print(int offset) {
     print_offset(offset);
     cout << "Call " << name << endl;
@@ -291,7 +291,7 @@ struct FuncDefNode : public Node {
   vector<string *> params;
   Node *body;
   FuncDefNode(const string &name, const vector<string *> &params, Node *body)
-      : Node(AST_STMTS), name(name), params(params), body(body) {}
+      : name(name), params(params), body(body) {}
   virtual void print(int offset) {
     print_offset(offset);
     cout << "FuncDef " << name << endl;
@@ -324,7 +324,7 @@ struct KlassDefNode : public Node {
   string name;
   Node *body;
   KlassDefNode(const string &name, Node *body)
-      : Node(AST_STMTS), name(name), body(body) {}
+      : name(name), body(body) {}
   virtual void print(int offset) {
     print_offset(offset);
     cout << "KlassDef " << name << endl;
@@ -343,7 +343,7 @@ struct KlassDefNode : public Node {
 
 struct SignChangeNode : public Node {
   Node *body;
-  SignChangeNode(Node *body) : Node(AST_STMTS), body(body) {}
+  SignChangeNode(Node *body) : body(body) {}
   virtual void print(int offset) {
     print_offset(offset);
     cout << "SignChange" << endl;
@@ -359,7 +359,7 @@ struct PrimeExprNode : public Node {
   Node *prime;
   Node *traier;
   PrimeExprNode(Node *prime, Node *traier)
-      : Node(AST_STMTS), prime(prime), traier(traier) {}
+      : prime(prime), traier(traier) {}
   virtual void print(int offset) {
     prime->print(offset);
     traier->print(offset + 1);
@@ -375,7 +375,7 @@ struct RefFieldNode : public Node {
   string *field;
   Node *traier;
   RefFieldNode(string *field, Node *traier)
-      : Node(AST_STMTS), field(field), traier(traier) {}
+      : field(field), traier(traier) {}
   virtual void print(int offset) {
     print_offset(offset);
     cout << "." << *field << endl;
@@ -391,7 +391,7 @@ struct SendNode : public Node {
   vector<Node *> args;
   Node *traier;
   SendNode(const vector<Node *> &args, Node *traier)
-      : Node(AST_STMTS), args(args), traier(traier) {}
+      : args(args), traier(traier) {}
   virtual void print(int offset) {
     print_offset(offset);
     cout << "Call" << endl;

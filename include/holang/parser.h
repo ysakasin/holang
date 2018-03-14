@@ -54,8 +54,6 @@ private:
     return false;
   }
 
-  void should(Token *node, NodeType type);
-
 private:
   Node *read_toplevel();
   Node *read_stmts();
