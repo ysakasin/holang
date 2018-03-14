@@ -680,7 +680,7 @@ Node *Parser::parse() { return read_toplevel(); }
 
 void print_code(const vector<Code> &codes) {
   printf("---------- code ----------\n");
-  for (int i = 0; i < codes.size(); i) {
+  for (int i = 0; i < codes.size();) {
     printf("%2d: ", i);
     auto op = codes[i++].op;
     switch (op) {
