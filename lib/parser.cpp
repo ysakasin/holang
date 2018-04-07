@@ -144,8 +144,7 @@ Instruction to_opcode(char c) {
 struct BinopNode : public Node {
   Keyword op;
   Node *lhs, *rhs;
-  BinopNode(Keyword op, Node *lhs, Node *rhs)
-      : op(op), lhs(lhs), rhs(rhs) {}
+  BinopNode(Keyword op, Node *lhs, Node *rhs) : op(op), lhs(lhs), rhs(rhs) {}
   virtual void print(int offset) {
     print_offset(offset);
     cout << "Binop " << KEYWORD_S[op] << endl;
@@ -162,8 +161,7 @@ struct BinopNode : public Node {
 struct AssignNode : public Node {
   IdentNode *lhs;
   Node *rhs;
-  AssignNode(IdentNode *ident, Node *rhs)
-      : lhs(ident), rhs(rhs) {}
+  AssignNode(IdentNode *ident, Node *rhs) : lhs(ident), rhs(rhs) {}
   virtual void print(int offset) {
     print_offset(offset);
     cout << "Assign " << lhs->ident << endl;
@@ -196,8 +194,7 @@ struct ExprsNode : public Node {
 struct StmtsNode : public Node {
   Node *current;
   Node *next;
-  StmtsNode(Node *current, Node *next)
-      : current(current), next(next) {}
+  StmtsNode(Node *current, Node *next) : current(current), next(next) {}
   virtual void print(int offset) {
     current->print(offset);
     next->print(offset);
@@ -353,8 +350,7 @@ struct SignChangeNode : public Node {
 struct PrimeExprNode : public Node {
   Node *prime;
   Node *traier;
-  PrimeExprNode(Node *prime, Node *traier)
-      : prime(prime), traier(traier) {}
+  PrimeExprNode(Node *prime, Node *traier) : prime(prime), traier(traier) {}
   virtual void print(int offset) {
     prime->print(offset);
     traier->print(offset + 1);
@@ -369,8 +365,7 @@ struct PrimeExprNode : public Node {
 struct RefFieldNode : public Node {
   string *field;
   Node *traier;
-  RefFieldNode(string *field, Node *traier)
-      : field(field), traier(traier) {}
+  RefFieldNode(string *field, Node *traier) : field(field), traier(traier) {}
   virtual void print(int offset) {
     print_offset(offset);
     cout << "." << *field << endl;
@@ -719,13 +714,11 @@ void print_code(const vector<Code> &codes) {
       printf("%s\n", op_str);
       break;
     case Instruction::DEF_FUNC:
-      printf("%s %s %d\n", op_str, codes[i].sval->c_str(),
-             codes[i + 1].ival);
+      printf("%s %s %d\n", op_str, codes[i].sval->c_str(), codes[i + 1].ival);
       i += 2;
       break;
     case Instruction::CALL_FUNC:
-      printf("%s %s %d\n", op_str, codes[i].sval->c_str(),
-             codes[i + 1].ival);
+      printf("%s %s %d\n", op_str, codes[i].sval->c_str(), codes[i + 1].ival);
       i += 2;
       break;
     default:

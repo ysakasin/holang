@@ -1,7 +1,7 @@
 #pragma once
 
-#include <string>
 #include "holang/instruction.h"
+#include <string>
 
 class Object;
 
