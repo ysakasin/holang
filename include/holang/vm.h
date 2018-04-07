@@ -118,8 +118,7 @@ public:
         break;
       default:
 
-        std::cerr << "not implemented: "
-                  << OPCODE_S[static_cast<int>(op)].c_str() << std::endl;
+        std::cerr << "not implemented: " << op << std::endl;
         exit(1);
       }
     }

@@ -668,63 +668,62 @@ Node *Parser::read_toplevel() {
 
 Node *Parser::parse() { return read_toplevel(); }
 
-void print_code(const vector<Code> &codes) {
-  printf("---------- code ----------\n");
-  for (int i = 0; i < codes.size();) {
-    printf("%2d: ", i);
-    auto op = codes[i++].op;
-    const char *op_str = OPCODE_S[static_cast<int>(op)].c_str();
-    switch (op) {
-    case Instruction::PUT_ENV:
-      printf("%s %d\n", op_str, codes[i++].ival);
-      break;
-    case Instruction::LOAD_INT:
-      printf("%s %d\n", op_str, codes[i++].ival);
-      break;
-    case Instruction::LOAD_BOOL:
-      printf("%s %d\n", op_str, codes[i++].bval);
-      break;
-    case Instruction::LOAD_STRING:
-      printf("%s %s\n", op_str, codes[i++].sval->c_str());
-      break;
-    case Instruction::POP:
-    case Instruction::ADD:
-    case Instruction::SUB:
-    case Instruction::MUL:
-    case Instruction::DIV:
-    case Instruction::LESS:
-    case Instruction::GREATER:
-      printf("%s\n", op_str);
-      break;
-    case Instruction::LOCAL_STORE:
-      printf("%s %d\n", op_str, codes[i++].ival);
-      break;
-    case Instruction::LOCAL_LOAD:
-      printf("%s %d\n", op_str, codes[i++].ival);
-      break;
-    case Instruction::PUT_SELF:
-      printf("%s\n", op_str);
-      break;
-    case Instruction::JUMP:
-    case Instruction::JUMP_IF:
-    case Instruction::JUMP_IFNOT:
-      printf("%s %d\n", op_str, codes[i++].ival);
-      break;
-    case Instruction::RET:
-      printf("%s\n", op_str);
-      break;
-    case Instruction::DEF_FUNC:
-      printf("%s %s %d\n", op_str, codes[i].sval->c_str(), codes[i + 1].ival);
-      i += 2;
-      break;
-    case Instruction::CALL_FUNC:
-      printf("%s %s %d\n", op_str, codes[i].sval->c_str(), codes[i + 1].ival);
-      i += 2;
-      break;
-    default:
-      std::cerr << "hogehogehogehogheog" << endl;
-      exit(1);
-    }
-  }
-  printf("---------- code ----------\n");
-}
+// void print_code(const vector<Code> &codes) {
+//   printf("---------- code ----------\n");
+//   for (int i = 0; i < codes.size();) {
+//     printf("%2d: ", i);
+//     auto op = codes[i++].op;
+//     std::cout <<
+//     const char *op_str = OPCODE_S[static_cast<int>(op)].c_str();
+//     switch (op) {
+//     case Instruction::PUT_ENV:
+//       printf("%s %d\n", op_str, codes[i++].ival);
+//       break;
+//     case Instruction::LOAD_INT:
+//       printf("%s %d\n", op_str, codes[i++].ival);
+//       break;
+//     case Instruction::LOAD_BOOL:
+//       printf("%s %d\n", op_str, codes[i++].bval);
+//       break;
+//     case Instruction::LOAD_STRING:
+//       printf("%s %s\n", op_str, codes[i++].sval->c_str());
+//       break;
+//     case Instruction::POP:
+//     case Instruction::ADD:
+//     case Instruction::SUB:
+//     case Instruction::MUL:
+//     case Instruction::DIV:
+//     case Instruction::LESS:
+//     case Instruction::GREATER:
+//       printf("%s\n", op_str);
+//       break;
+//     case Instruction::LOCAL_STORE:
+//       printf("%s %d\n", op_str, codes[i++].ival);
+//       break;
+//     case Instruction::LOCAL_LOAD:
+//       printf("%s %d\n", op_str, codes[i++].ival);
+//       break;
+//     case Instruction::PUT_SELF:
+//       printf("%s\n", op_str);
+//       break;
+//     case Instruction::JUMP:
+//     case Instruction::JUMP_IF:
+//     case Instruction::JUMP_IFNOT:
+//       printf("%s %d\n", op_str, codes[i++].ival);
+//       break;
+//     case Instruction::RET:
+//       printf("%s\n", op_str);
+//       break;
+//     case Instruction::DEF_FUNC:
+//       printf("%s %s %d\n", op_str, codes[i].sval->c_str(), codes[i +
+//       1].ival); i += 2; break;
+//     case Instruction::CALL_FUNC:
+//       printf("%s %s %d\n", op_str, codes[i].sval->c_str(), codes[i +
+//       1].ival); i += 2; break;
+//     default:
+//       std::cerr << "hogehogehogehogheog" << endl;
+//       exit(1);
+//     }
+//   }
+//   printf("---------- code ----------\n");
+// }

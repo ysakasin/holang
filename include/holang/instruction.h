@@ -28,14 +28,6 @@ enum class Instruction {
   PREV_ENV,
 };
 
-const std::string OPCODE_S[] = {
-    "PUT_ENV",    "LOAD_INT",    "LOAD_BOOL",  "LOAD_STRING", "POP",
-    "ADD",        "SUB",         "MUL",        "DIV",         "LESS",
-    "GREATER",    "LOCAL_STORE", "LOCAL_LOAD", "JUMP",        "JUMP_IF",
-    "JUMP_IFNOT", "CALL_FUNC",   "RET",        "PUT_SELF",    "DEF_FUNC",
-    "LOAD_CLASS", "PREV_ENV",
-};
-
 static std::ostream &operator<<(std::ostream &out,
                                 const Instruction instruction) {
   switch (instruction) {
