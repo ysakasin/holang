@@ -76,7 +76,7 @@ private:
   Node *read_prime();
   Node *read_number();
   Node *read_string();
-  Node *read_name_or_funccall();
+  Node *read_name_or_funccall(bool is_trailer);
   Node *read_block();
   Node *read_ident();
   void read_exprs(std::vector<Node *> &args);

@@ -258,11 +258,9 @@ struct IfNode : public Node {
 struct FuncCallNode : public Node {
   string name;
   vector<Node *> args;
-  Node *self;
-  FuncCallNode(const string &name, const vector<Node *> &args)
-      : name(name), args(args), self(nullptr) {}
-  FuncCallNode(const string &name, Node *self, const vector<Node *> &args)
-      : name(name), args(args), self(self) {}
+  bool is_trailer;
+  FuncCallNode(const string &name, const vector<Node *> &args, bool is_trailer)
+      : name(name), args(args), is_trailer(is_trailer) {}
   virtual void print(int offset) {
     print_offset(offset);
     cout << "Call " << name << endl;
@@ -271,9 +269,7 @@ struct FuncCallNode : public Node {
     }
   }
   virtual void code_gen(vector<Code> *codes) {
-    if (self != nullptr) {
-      self->code_gen(codes);
-    } else {
+    if (!is_trailer) {
       codes->push_back({Instruction::PUT_SELF});
     }
 
@@ -323,8 +319,7 @@ struct FuncDefNode : public Node {
 struct KlassDefNode : public Node {
   string name;
   Node *body;
-  KlassDefNode(const string &name, Node *body)
-      : name(name), body(body) {}
+  KlassDefNode(const string &name, Node *body) : name(name), body(body) {}
   virtual void print(int offset) {
     print_offset(offset);
     cout << "KlassDef " << name << endl;
@@ -445,7 +440,7 @@ void Parser::read_exprs(vector<Node *> &args) {
   }
 }
 
-Node *Parser::read_name_or_funccall() {
+Node *Parser::read_name_or_funccall(bool is_trailer) {
   Token *ident = get();
   if (next_token(KPARENL)) {
     vector<Node *> args;
@@ -453,7 +448,7 @@ Node *Parser::read_name_or_funccall() {
       read_exprs(args);
       take(KPARENR);
     }
-    return new FuncCallNode(*ident->sval, args);
+    return new FuncCallNode(*ident->sval, args, is_trailer);
   } else {
     return new IdentNode(*ident->sval);
   }
@@ -468,7 +463,7 @@ Node *Parser::read_prime() {
   if (is_next(TNUMBER)) {
     return read_number();
   } else if (is_next(TIDENT)) {
-    return read_name_or_funccall();
+    return read_name_or_funccall(false);
   } else if (next_token(KTRUE)) {
     return new BoolLiteralNode(true);
   } else if (next_token(KFALSE)) {
@@ -495,7 +490,7 @@ void Parser::read_arglist(vector<Node *> *arglist) {
 
 Node *Parser::read_traier() {
   if (next_token(KDOT)) {
-    return read_name_or_funccall();
+    return read_name_or_funccall(true);
   }
   return nullptr;
 }
