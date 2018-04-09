@@ -36,17 +36,17 @@ struct Token {
 static std::ostream &operator<<(std::ostream &out, const TokenType type) {
   switch (type) {
   case TNUMBER:
-    return out << std::string("TNUMBER");
+    return out << "TNUMBER";
   case TSTRING:
-    return out << std::string("TSTRING");
+    return out << "TSTRING";
   case TKEYWORD:
-    return out << std::string("TKEYWORD");
+    return out << "TKEYWORD";
   case TIDENT:
-    return out << std::string("TIDENT");
+    return out << "TIDENT";
   case TNEWLINE:
-    return out << std::string("TNEWLINE");
+    return out << "TNEWLINE";
   case TEOF:
-    return out << std::string("TEOF");
+    return out << "TEOF";
   }
 }
 
@@ -56,9 +56,9 @@ static std::ostream &operator<<(std::ostream &out, const Keyword keyword) {
 
 static std::ostream &operator<<(std::ostream &out, const Token *token) {
   if (token->type == TKEYWORD) {
-    return out << token->type << std::string(" ") << token->keyword;
+    return out << token->type << " " << token->keyword;
   } else if (token->type == TIDENT) {
-    return out << token->type << std::string(" ") << *token->sval;
+    return out << token->type << " " << *token->sval;
   } else {
     return out << token->type;
   }
