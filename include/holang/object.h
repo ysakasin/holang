@@ -21,6 +21,7 @@ public:
   void set_method(const std::string &name, Func *func) {
     methods.emplace(name, func);
   }
+  Object *find_field(const std::string &filed_bame);
   void set_field(const std::string &name, Object *obj) {
     fields.emplace(name, obj);
   }
@@ -35,6 +36,7 @@ public:
   Klass(const char name[]) : name(name) {}
   static Klass Int;
   static Klass String;
+  virtual const std::string to_s() { return "<" + name + ">"; }
 };
 
 enum FuncType {

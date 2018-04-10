@@ -116,6 +116,9 @@ public:
       case Instruction::PREV_ENV:
         prev_env();
         break;
+      case Instruction::LOAD_OBJ_FIELD:
+        load_obj_field();
+        break;
       default:
 
         std::cerr << "not implemented: " << op << std::endl;
@@ -307,6 +310,12 @@ private:
   void prev_env() {
     sp = ep + 1;
     load_ep();
+  }
+
+  void load_obj_field() {
+    const std::string &field = *take_code().sval;
+    Value val = stack_pop();
+    stack_push(val.find_field(field));
   }
 
   void stack_push(int x) { stack_push(Value(x)); }

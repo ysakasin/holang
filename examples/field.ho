@@ -1,0 +1,9 @@
+class Car {
+  func run() {
+    a = 1
+  }
+}
+
+print(self.String)
+print(self.Car)
+car = Car.new()

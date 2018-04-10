@@ -26,6 +26,7 @@ struct Value {
   Value(Object *obj) : type(Type::OBJECT), objval(obj) {}
 
   Func *find_method(const std::string &name);
+  Object *find_field(const std::string &name);
 
   const std::string to_s() {
     switch (type) {

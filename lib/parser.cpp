@@ -364,16 +364,15 @@ struct PrimeExprNode : public Node {
 
 struct RefFieldNode : public Node {
   string *field;
-  Node *traier;
-  RefFieldNode(string *field, Node *traier) : field(field), traier(traier) {}
+  RefFieldNode(string *field) : field(field) {}
   virtual void print(int offset) {
     print_offset(offset);
     cout << "." << *field << endl;
-    traier->print(offset + 1);
   }
 
   virtual void code_gen(vector<Code> *codes) {
-    exit_by_unsupported("PrimeExprNode#code_gen()");
+    codes->push_back({Instruction::LOAD_OBJ_FIELD});
+    codes->push_back({.sval = field});
   }
 };
 
@@ -445,7 +444,11 @@ Node *Parser::read_name_or_funccall(bool is_trailer) {
     }
     return new FuncCallNode(*ident->sval, args, is_trailer);
   } else {
-    return new IdentNode(*ident->sval);
+    if (is_trailer) {
+      return new RefFieldNode(ident->sval);
+    } else {
+      return new IdentNode(*ident->sval);
+    }
   }
 }
 

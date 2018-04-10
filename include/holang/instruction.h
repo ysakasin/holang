@@ -26,6 +26,7 @@ enum class Instruction {
   DEF_FUNC,
   LOAD_CLASS,
   PREV_ENV,
+  LOAD_OBJ_FIELD,
 };
 
 static std::ostream &operator<<(std::ostream &out,
@@ -75,5 +76,7 @@ static std::ostream &operator<<(std::ostream &out,
     return out << "LOAD_CLASS";
   case Instruction::PREV_ENV:
     return out << "PREV_ENV";
+  case Instruction::LOAD_OBJ_FIELD:
+    return out << "LOAD_OBJ_FIELD";
   }
 }

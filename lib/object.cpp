@@ -13,6 +13,18 @@ Func *Object::find_method(const std::string &method_name) {
   }
 }
 
+Object *Object::find_field(const std::string &field_name) {
+  auto it = fields.find(field_name);
+  if (it != fields.end()) {
+    return it->second;
+  } else if (klass != nullptr) {
+    return klass->find_field(field_name);
+  } else {
+    std::cerr << "Object#find_field() unmatch: " << field_name << std::endl;
+    exit(1);
+  }
+}
+
 Klass Klass::Int{"Int"};
 Klass Klass::String{"String"};
 
@@ -26,4 +38,12 @@ Func *Value::find_method(const std::string &name) {
     std::cerr << "find_method: " << this->to_s() << std::endl;
     exit(1);
   }
+}
+
+Object *Value::find_field(const std::string &name) {
+  if (type != Type::OBJECT) {
+    std::cerr << "Value#find_field(): " << this->to_s() << std::endl;
+    exit(1);
+  }
+  return objval->find_field(name);
 }
