@@ -1,18 +1,7 @@
 #pragma once
 
-#include <string>
-
-#define keyword(name, _) name,
-enum Keyword {
-#include "holang/keyword.inc"
-};
-#undef keyword
-
-#define keyword(_, word) #word,
-const std::string KEYWORD_S[] = {
-#include "holang/keyword.inc"
-};
-#undef keyword
+#include "keyword.h"
+#include <ostream>
 
 enum TokenType {
   TNUMBER,
@@ -48,10 +37,6 @@ static std::ostream &operator<<(std::ostream &out, const TokenType type) {
   case TEOF:
     return out << "TEOF";
   }
-}
-
-static std::ostream &operator<<(std::ostream &out, const Keyword keyword) {
-  return out << KEYWORD_S[keyword];
 }
 
 static std::ostream &operator<<(std::ostream &out, const Token *token) {

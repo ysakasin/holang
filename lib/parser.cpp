@@ -121,19 +121,19 @@ struct IdentNode : public Node {
   }
 };
 
-Instruction to_opcode(char c) {
+Instruction to_opcode(Keyword c) {
   switch (c) {
-  case KADD:
+  case Keyword::ADD:
     return Instruction::ADD;
-  case KSUB:
+  case Keyword::SUB:
     return Instruction::SUB;
-  case KMUL:
+  case Keyword::MUL:
     return Instruction::MUL;
-  case KDIV:
+  case Keyword::DIV:
     return Instruction::DIV;
-  case KLT:
+  case Keyword::LT:
     return Instruction::LESS;
-  case KGT:
+  case Keyword::GT:
     return Instruction::GREATER;
   default:
     cerr << "err: to_opecode" << endl;
@@ -147,7 +147,7 @@ struct BinopNode : public Node {
   BinopNode(Keyword op, Node *lhs, Node *rhs) : op(op), lhs(lhs), rhs(rhs) {}
   virtual void print(int offset) {
     print_offset(offset);
-    cout << "Binop " << KEYWORD_S[op] << endl;
+    cout << "Binop " << op << endl;
     lhs->print(offset + 1);
     rhs->print(offset + 1);
   }
@@ -430,18 +430,18 @@ Node *Parser::read_string() {
 
 void Parser::read_exprs(vector<Node *> &args) {
   args.push_back(read_expr());
-  while (next_token(KCOMMA)) {
+  while (next_token(Keyword::COMMA)) {
     args.push_back(read_expr());
   }
 }
 
 Node *Parser::read_name_or_funccall(bool is_trailer) {
   Token *ident = get();
-  if (next_token(KPARENL)) {
+  if (next_token(Keyword::PARENL)) {
     vector<Node *> args;
-    if (!next_token(KPARENR)) {
+    if (!next_token(Keyword::PARENR)) {
       read_exprs(args);
-      take(KPARENR);
+      take(Keyword::PARENR);
     }
     return new FuncCallNode(*ident->sval, args, is_trailer);
   } else {
@@ -459,9 +459,9 @@ Node *Parser::read_prime() {
     return read_number();
   } else if (is_next(TIDENT)) {
     return read_name_or_funccall(false);
-  } else if (next_token(KTRUE)) {
+  } else if (next_token(Keyword::TRUE)) {
     return new BoolLiteralNode(true);
-  } else if (next_token(KFALSE)) {
+  } else if (next_token(Keyword::FALSE)) {
     return new BoolLiteralNode(false);
   } else if (is_next(TSTRING)) {
     return read_string();
@@ -471,20 +471,20 @@ Node *Parser::read_prime() {
 }
 
 void Parser::read_arglist(vector<Node *> *arglist) {
-  if (is_next(KPARENR)) {
+  if (is_next(Keyword::PARENR)) {
     return;
   }
 
   Node *arg = read_expr();
   arglist->emplace_back(arg);
-  while (next_token(KCOMMA)) {
+  while (next_token(Keyword::COMMA)) {
     arg = read_expr();
     arglist->emplace_back(arg);
   }
 }
 
 Node *Parser::read_traier() {
-  if (next_token(KDOT)) {
+  if (next_token(Keyword::DOT)) {
     return read_name_or_funccall(true);
   }
   return nullptr;
@@ -507,7 +507,7 @@ Node *ast_binop(Keyword op, Node *lhs, Node *rhs) {
 }
 
 Node *Parser::read_factor() {
-  if (next_token(KSUB)) {
+  if (next_token(Keyword::SUB)) {
     return new SignChangeNode(read_prime_expr());
   } else {
     return read_prime_expr();
@@ -517,10 +517,10 @@ Node *Parser::read_factor() {
 Node *Parser::read_multiplicative_expr() {
   Node *node = read_factor();
   while (true) {
-    if (next_token(KMUL))
-      node = ast_binop(KMUL, node, read_factor());
-    else if (next_token(KDIV))
-      node = ast_binop(KDIV, node, read_factor());
+    if (next_token(Keyword::MUL))
+      node = ast_binop(Keyword::MUL, node, read_factor());
+    else if (next_token(Keyword::DIV))
+      node = ast_binop(Keyword::DIV, node, read_factor());
     else
       return node;
   }
@@ -529,10 +529,10 @@ Node *Parser::read_multiplicative_expr() {
 Node *Parser::read_additive_expr() {
   Node *node = read_multiplicative_expr();
   while (true) {
-    if (next_token(KADD))
-      node = ast_binop(KADD, node, read_multiplicative_expr());
-    else if (next_token(KSUB))
-      node = ast_binop(KSUB, node, read_multiplicative_expr());
+    if (next_token(Keyword::ADD))
+      node = ast_binop(Keyword::ADD, node, read_multiplicative_expr());
+    else if (next_token(Keyword::SUB))
+      node = ast_binop(Keyword::SUB, node, read_multiplicative_expr());
     else
       return node;
   }
@@ -540,17 +540,17 @@ Node *Parser::read_additive_expr() {
 
 Node *Parser::read_comp_expr() {
   Node *node = read_additive_expr();
-  if (next_token(KLT))
-    return ast_binop(KLT, node, read_additive_expr());
-  else if (next_token(KGT))
-    return ast_binop(KGT, node, read_additive_expr());
+  if (next_token(Keyword::LT))
+    return ast_binop(Keyword::LT, node, read_additive_expr());
+  else if (next_token(Keyword::GT))
+    return ast_binop(Keyword::GT, node, read_additive_expr());
   else
     return node;
 }
 
 Node *Parser::read_assignment_expr() {
   Token *token = get();
-  if (token->type == TIDENT && next_token(KASSIGN)) {
+  if (token->type == TIDENT && next_token(Keyword::ASSIGN)) {
     return new AssignNode(new IdentNode(*token->sval), read_assignment_expr());
   }
   unget();
@@ -566,53 +566,53 @@ void Parser::read_params(vector<string *> *params) {
 
   Token *token = get_ident();
   params->emplace_back(token->sval);
-  while (next_token(KCOMMA)) {
+  while (next_token(Keyword::COMMA)) {
     token = get_ident();
     params->emplace_back(token->sval);
   }
 }
 
 Node *Parser::read_funcdef() {
-  take(KFUNC);
+  take(Keyword::FUNC);
   Token *ident = get_ident();
 
-  take(KPARENL);
+  take(Keyword::PARENL);
   vector<string *> params;
   read_params(&params);
-  take(KPARENR);
+  take(Keyword::PARENR);
 
   Node *body = read_suite();
   return new FuncDefNode(*ident->sval, params, body);
 }
 
 Node *Parser::read_klassdef() {
-  take(KCLASS);
+  take(Keyword::CLASS);
   Token *ident = get_ident();
   Node *body = read_suite();
   return new KlassDefNode(*ident->sval, body);
 }
 
 Node *Parser::read_block() {
-  take(KBRACEL);
+  take(Keyword::BRACEL);
   Node *node = read_stmts();
-  take(KBRACER);
+  take(Keyword::BRACER);
   return node;
 }
 
 Node *Parser::read_if() {
-  take(KIF);
+  take(Keyword::IF);
   Node *node = read_expr();
   Node *then = read_suite();
-  Node *els = next_token(KELSE) ? read_stmt() : nullptr;
+  Node *els = next_token(Keyword::ELSE) ? read_stmt() : nullptr;
   return new IfNode(node, then, els);
 }
 
 Node *Parser::read_suite() {
   Node *suite = nullptr;
 
-  take(KBRACEL);
+  take(Keyword::BRACEL);
   consume_newlines();
-  while (!is_next(KBRACER)) {
+  while (!is_next(Keyword::BRACER)) {
     Node *node = read_stmt();
     consume_newlines();
 
@@ -622,19 +622,19 @@ Node *Parser::read_suite() {
       suite = node;
     }
   }
-  take(KBRACER);
+  take(Keyword::BRACER);
   return suite;
 }
 
 Node *Parser::read_stmt() {
   Node *node;
-  if (is_next(KIF)) {
+  if (is_next(Keyword::IF)) {
     node = read_if();
-  } else if (is_next(KFUNC)) {
+  } else if (is_next(Keyword::FUNC)) {
     node = read_funcdef();
-  } else if (is_next(KCLASS)) {
+  } else if (is_next(Keyword::CLASS)) {
     node = read_klassdef();
-  } else if (is_next(KBRACEL)) {
+  } else if (is_next(Keyword::BRACEL)) {
     node = read_suite();
   } else {
     node = read_expr();
@@ -644,7 +644,7 @@ Node *Parser::read_stmt() {
 
 Node *Parser::read_stmts() {
   Node *node = read_stmt();
-  while (!(is_eof() || is_next(KBRACER))) {
+  while (!(is_eof() || is_next(Keyword::BRACER))) {
     node = new StmtsNode(node, read_stmt());
   }
   return node;

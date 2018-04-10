@@ -8,11 +8,27 @@ using namespace std;
 
 static map<string, Keyword> keywords;
 
-#define keyword(name, word) keywords[#word] = name;
 void init_keywords() {
-#include "holang/keyword.inc"
+  keywords["+"] = Keyword::ADD;
+  keywords["-"] = Keyword::SUB;
+  keywords["*"] = Keyword::MUL;
+  keywords["/"] = Keyword::DIV;
+  keywords["<"] = Keyword::LT;
+  keywords[">"] = Keyword::GT;
+  keywords["="] = Keyword::ASSIGN;
+  keywords["true"] = Keyword::TRUE;
+  keywords["false"] = Keyword::FALSE;
+  keywords["if"] = Keyword::IF;
+  keywords["else"] = Keyword::ELSE;
+  keywords["{"] = Keyword::BRACEL;
+  keywords["}"] = Keyword::BRACER;
+  keywords["("] = Keyword::PARENL;
+  keywords[")"] = Keyword::PARENR;
+  keywords[","] = Keyword::COMMA;
+  keywords["."] = Keyword::DOT;
+  keywords["func"] = Keyword::FUNC;
+  keywords["class"] = Keyword::CLASS;
 }
-#undef keyword
 
 int code_head;
 string code_str;
@@ -114,31 +130,31 @@ Token *take_token() {
   case '"':
     return read_str();
   case '+':
-    return make_keyword(KADD);
+    return make_keyword(Keyword::ADD);
   case '-':
-    return make_keyword(KSUB);
+    return make_keyword(Keyword::SUB);
   case '*':
-    return make_keyword(KMUL);
+    return make_keyword(Keyword::MUL);
   case '/':
-    return make_keyword(KDIV);
+    return make_keyword(Keyword::DIV);
   case '<':
-    return make_keyword(KLT);
+    return make_keyword(Keyword::LT);
   case '>':
-    return make_keyword(KGT);
+    return make_keyword(Keyword::GT);
   case '=':
-    return make_keyword(KASSIGN);
+    return make_keyword(Keyword::ASSIGN);
   case '(':
-    return make_keyword(KPARENL);
+    return make_keyword(Keyword::PARENL);
   case ')':
-    return make_keyword(KPARENR);
+    return make_keyword(Keyword::PARENR);
   case '{':
-    return make_keyword(KBRACEL);
+    return make_keyword(Keyword::BRACEL);
   case '}':
-    return make_keyword(KBRACER);
+    return make_keyword(Keyword::BRACER);
   case ',':
-    return make_keyword(KCOMMA);
+    return make_keyword(Keyword::COMMA);
   case '.':
-    return make_keyword(KDOT);
+    return make_keyword(Keyword::DOT);
   case '\n':
     line++;
     line_head = code_head;
