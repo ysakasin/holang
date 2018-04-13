@@ -32,11 +32,18 @@ class Klass : public Object {
   std::string name;
 
 public:
-  Klass(std::string name) : name(name) {}
-  Klass(const char name[]) : name(name) {}
+  Klass(std::string name) : name(name) { init(); }
+  Klass(const char name[]) : name(name) { init(); }
   static Klass Int;
   static Klass String;
   virtual const std::string to_s() { return "<" + name + ">"; }
+
+  Object *new_object() {
+    auto *obj = new Object();
+    obj->klass = this;
+    return obj;
+  }
+  void init();
 };
 
 enum FuncType {

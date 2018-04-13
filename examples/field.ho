@@ -2,8 +2,14 @@ class Car {
   func run() {
     a = 1
   }
+
+  func hoge() {
+    "hoge"
+  }
 }
 
 print(self.String)
 print(self.Car)
-car = Car.new()
+car = self.Car.new()
+print(car.run())
+print(car.hoge())

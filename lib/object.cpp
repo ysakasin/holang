@@ -28,6 +28,15 @@ Object *Object::find_field(const std::string &field_name) {
 Klass Klass::Int{"Int"};
 Klass Klass::String{"String"};
 
+void Klass::init() {
+  std::function<Object *(const Klass)> nnn = &Klass::new_object;
+  auto self = this;
+  NativeFunc func = [=](Value *, Value *, int) {
+    return Value(self->new_object());
+  };
+  methods["new"] = new Func(func);
+}
+
 Func *Value::find_method(const std::string &name) {
   switch (type) {
   case Type::OBJECT:
