@@ -214,27 +214,45 @@ private:
       exit(1);
     }
   }
+
+  // load_int number
+  // [] -> [val]
   void load_int() {
     int i = take_code().ival;
     stack_push(i);
   }
+
+  // load_bool boolean
+  // [] -> [val]
   void load_bool() {
     bool b = take_code().bval;
     stack_push(b);
   }
+
+  // load_string string_ptr
+  // [] -> [val]
   void load_string() {
     std::string *str = take_code().sval;
     stack_push(new String(*str));
   }
+
+  // local_load index
+  // [] -> [val]
   void local_load() {
     int offset = take_code().ival;
     stack_push(stack[ep + offset]);
   }
+
+  // local_store index
+  // [val] -> [val]
   void local_store() {
     int offset = take_code().ival;
-    auto v = stack_pop();
+    auto v = stack_top();
     stack[ep + offset] = v;
   }
+
+  // def_func func_name, func_obj
+  // [] -> [true]
   void def_func() {
     auto *self = stack[ep].objval;
     const std::string &name = *take_code().sval;
@@ -242,6 +260,8 @@ private:
     self->set_method(name, obj);
     stack_push(true);
   }
+
+  // call_func func_name, argc
   void call_func() {
     std::string *func_name = take_code().sval;
     int argc = take_code().ival;
@@ -328,6 +348,7 @@ private:
   }
 
   Value stack_pop() { return stack[--sp]; }
+  Value stack_top() { return stack[sp - 1]; }
 
   Code take_code() { return codes->at(pc++); }
   void save_current_codes() { prev_code.push_back({codes, pc}); }
