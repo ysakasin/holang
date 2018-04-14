@@ -1,6 +1,8 @@
 #include "holang/object.h"
 #include "holang.h"
 
+using namespace holang;
+
 Func *Object::find_method(const std::string &method_name) {
   auto it = methods.find(method_name);
   if (it != methods.end()) {

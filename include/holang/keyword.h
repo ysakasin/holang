@@ -2,6 +2,7 @@
 
 #include <ostream>
 
+namespace holang {
 enum class Keyword {
   ADD,
   SUB,
@@ -69,3 +70,4 @@ static std::ostream &operator<<(std::ostream &out, const Keyword keyword) {
     return out << "import";
   }
 }
+} // namespace holang

@@ -3,6 +3,7 @@
 #include "keyword.h"
 #include <ostream>
 
+namespace holang {
 enum TokenType {
   TNUMBER,
   TSTRING,
@@ -50,3 +51,4 @@ static std::ostream &operator<<(std::ostream &out, const Token *token) {
     return out << token->type;
   }
 }
+} // namespace holang

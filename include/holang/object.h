@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+namespace holang {
 class Klass;
 struct Func;
 struct Value;
@@ -64,3 +65,4 @@ struct Func {
   Func(NativeFunc native) : type(FBUILTIN), native(native) {}
   Func(const std::vector<Code> &body) : type(FUSERDEF), body(body) {}
 };
+} // namespace holang

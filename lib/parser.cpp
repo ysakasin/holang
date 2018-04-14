@@ -35,7 +35,7 @@ public:
 
 static LocalIdentTable local_ident_table;
 
-int size_local_idents() { return local_ident_table.size(); }
+int holang::size_local_idents() { return local_ident_table.size(); }
 
 void exit_by_unsupported(const string &func) {
   cerr << func << " are not supported yet." << endl;

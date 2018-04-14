@@ -19,6 +19,7 @@
 0:[ self           ] <- ep
 */
 
+namespace holang {
 Value print_func(Value *, Value *args, int argc) {
   std::cout << "print!!!!!!:";
   for (int i = 0; i < argc; i++) {
@@ -432,3 +433,4 @@ private:
   std::vector<int> prev_ep;
   std::vector<std::pair<Codes *, int>> prev_code;
 };
+} // namespace holang

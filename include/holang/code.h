@@ -3,6 +3,7 @@
 #include "holang/instruction.h"
 #include <string>
 
+namespace holang {
 class Object;
 
 union Code {
@@ -13,3 +14,4 @@ union Code {
   std::string *sval;
   Object *objval;
 };
+} // namespace holang

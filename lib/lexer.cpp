@@ -5,10 +5,11 @@
 #include <vector>
 
 using namespace std;
+using namespace holang;
 
 static map<string, Keyword> keywords;
 
-void init_keywords() {
+void holang::init_keywords() {
   keywords["+"] = Keyword::ADD;
   keywords["-"] = Keyword::SUB;
   keywords["*"] = Keyword::MUL;
@@ -172,7 +173,7 @@ Token *take_token() {
   }
 }
 
-int lex(const string &code, vector<Token *> &token_chain) {
+int holang::lex(const string &code, vector<Token *> &token_chain) {
   line = 1;
   code_str = code;
   code_head = 0;
@@ -193,6 +194,6 @@ void print_token(const Token *token) {
 
 void print_token_chain(const vector<Token *> &token_chain) {
   for (const Token *token : token_chain) {
-    print_token(token);
+    ::print_token(token);
   }
 }

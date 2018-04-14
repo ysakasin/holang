@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 
+namespace holang {
 enum class Instruction {
   PUT_ENV,
   PUT_INT,
@@ -83,3 +84,4 @@ static std::ostream &operator<<(std::ostream &out,
     return out << "IMPORT";
   }
 }
+} // namespace holang

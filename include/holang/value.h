@@ -3,6 +3,7 @@
 #include "holang/object.h"
 #include <string>
 
+namespace holang {
 enum class Type {
   INT,
   DOUBLE,
@@ -41,3 +42,4 @@ struct Value {
     }
   }
 };
+} // namespace holang
