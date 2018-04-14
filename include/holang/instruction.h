@@ -5,9 +5,9 @@
 
 enum class Instruction {
   PUT_ENV,
-  LOAD_INT,
-  LOAD_BOOL,
-  LOAD_STRING,
+  PUT_INT,
+  PUT_BOOL,
+  PUT_STRING,
   POP,
   ADD,
   SUB,
@@ -35,12 +35,12 @@ static std::ostream &operator<<(std::ostream &out,
   switch (instruction) {
   case Instruction::PUT_ENV:
     return out << "PUT_ENV";
-  case Instruction::LOAD_INT:
-    return out << "LOAD_INT";
-  case Instruction::LOAD_BOOL:
-    return out << "LOAD_BOOL";
-  case Instruction::LOAD_STRING:
-    return out << "LOAD_STRING";
+  case Instruction::PUT_INT:
+    return out << "PUT_INT";
+  case Instruction::PUT_BOOL:
+    return out << "PUT_BOOL";
+  case Instruction::PUT_STRING:
+    return out << "PUT_STRING";
   case Instruction::POP:
     return out << "POP";
   case Instruction::ADD:

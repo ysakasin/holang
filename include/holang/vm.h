@@ -75,14 +75,14 @@ public:
       case Instruction::POP:
         sp--;
         break;
-      case Instruction::LOAD_INT:
-        load_int();
+      case Instruction::PUT_INT:
+        put_int();
         break;
-      case Instruction::LOAD_BOOL:
-        load_bool();
+      case Instruction::PUT_BOOL:
+        put_bool();
         break;
-      case Instruction::LOAD_STRING:
-        load_string();
+      case Instruction::PUT_STRING:
+        put_string();
         break;
       case Instruction::LOCAL_LOAD:
         local_load();
@@ -218,23 +218,23 @@ private:
     }
   }
 
-  // load_int number
+  // put_int number
   // [] -> [val]
-  void load_int() {
+  void put_int() {
     int i = take_code().ival;
     stack_push(i);
   }
 
-  // load_bool boolean
+  // put_bool boolean
   // [] -> [val]
-  void load_bool() {
+  void put_bool() {
     bool b = take_code().bval;
     stack_push(b);
   }
 
-  // load_string string_ptr
+  // put_string string_ptr
   // [] -> [val]
-  void load_string() {
+  void put_string() {
     std::string *str = take_code().sval;
     stack_push(new String(*str));
   }

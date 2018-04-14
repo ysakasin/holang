@@ -58,7 +58,7 @@ struct IntLiteralNode : public Node {
     cout << "IntLiteral " << value << "" << endl;
   }
   virtual void code_gen(vector<Code> *codes) {
-    codes->push_back({.op = Instruction::LOAD_INT});
+    codes->push_back({.op = Instruction::PUT_INT});
     codes->push_back({.ival = value});
   }
 };
@@ -73,7 +73,7 @@ struct BoolLiteralNode : public Node {
     cout << "BoolLiteral " << bool2s(value) << endl;
   }
   virtual void code_gen(vector<Code> *codes) {
-    codes->push_back({.op = Instruction::LOAD_BOOL});
+    codes->push_back({.op = Instruction::PUT_BOOL});
     codes->push_back({.bval = value});
   }
 };
@@ -86,7 +86,7 @@ struct StringLiteralNode : public Node {
     cout << "StringLiteral \"" << str << "\"" << endl;
   }
   virtual void code_gen(vector<Code> *codes) {
-    codes->push_back({.op = Instruction::LOAD_STRING});
+    codes->push_back({.op = Instruction::PUT_STRING});
     codes->push_back({.sval = &str});
   }
 };
@@ -224,7 +224,7 @@ struct IfNode : public Node {
     int to_else = codes->size();
     if (els == nullptr) {
       // nilの概念ができたらnilにする
-      codes->push_back({Instruction::LOAD_INT});
+      codes->push_back({Instruction::PUT_INT});
       codes->push_back({.ival = 0});
     } else {
       els->code_gen(codes);
@@ -292,7 +292,7 @@ struct FuncDefNode : public Node {
 
     // print_code(body_code);
 
-    // codes->push_back({Instruction::LOAD_BOOL});
+    // codes->push_back({Instruction::PUT_BOOL});
     // codes->push_back({.bval = true});
   }
 };
@@ -692,13 +692,13 @@ Node *Parser::parse() {
 //     case Instruction::PUT_ENV:
 //       printf("%s %d\n", op_str, codes[i++].ival);
 //       break;
-//     case Instruction::LOAD_INT:
+//     case Instruction::PUT_INT:
 //       printf("%s %d\n", op_str, codes[i++].ival);
 //       break;
-//     case Instruction::LOAD_BOOL:
+//     case Instruction::PUT_BOOL:
 //       printf("%s %d\n", op_str, codes[i++].bval);
 //       break;
-//     case Instruction::LOAD_STRING:
+//     case Instruction::PUT_STRING:
 //       printf("%s %s\n", op_str, codes[i++].sval->c_str());
 //       break;
 //     case Instruction::POP:
