@@ -7,20 +7,12 @@
 using namespace std;
 using namespace holang;
 
-static vector<Token *> token_chain;
-// static vector<string> local_idents;
-int token_head;
-
-#define INVALID(pos)                                                           \
-  cerr << "unexpected token at " #pos << endl;                                 \
-  exit(1)
-
 class LocalIdentTable {
   using IdentTable = vector<string>;
   vector<IdentTable> tables;
 
 public:
-  LocalIdentTable() : tables(1) { tables.back().push_back("self"); }
+  LocalIdentTable() : tables(1) { init(); }
   int get(const string &ident) {
     auto &local_idents = tables.back();
     auto iter = find(local_idents.begin(), local_idents.end(), ident);
@@ -34,6 +26,11 @@ public:
   void next() { tables.push_back({"self"}); }
   void prev() { tables.pop_back(); }
   int size() { return tables.back().size(); }
+  void init() {
+    tables.resize(1);
+    tables.back().clear();
+    tables.back.push_back("self");
+  }
 };
 
 static LocalIdentTable local_ident_table;
@@ -44,16 +41,6 @@ void exit_by_unsupported(const string &func) {
   cerr << func << " are not supported yet." << endl;
   exit(1);
 }
-
-// int get_stack_position(const string &ident) {
-//   auto iter = find(local_idents.begin(), local_idents.end(), ident);
-//   if (iter == local_idents.end()) {
-//     local_idents.push_back(ident);
-//     return local_idents.size() - 1;
-//   } else {
-//     return distance(local_idents.begin(), iter);
-//   }
-// }
 
 void print_code(const vector<Code> &codes);
 
@@ -76,17 +63,14 @@ struct IntLiteralNode : public Node {
   }
 };
 
-const string BOOL_S[] = {
-    "false",
-    "true",
-};
+constexpr const char *bool2s(const bool val) { return val ? "true" : "false"; }
 
 struct BoolLiteralNode : public Node {
   bool value;
   BoolLiteralNode(bool value) : value(value){};
   virtual void print(int offset) {
     print_offset(offset);
-    cout << "BoolLiteral " << BOOL_S[value] << endl;
+    cout << "BoolLiteral " << bool2s(value) << endl;
   }
   virtual void code_gen(vector<Code> *codes) {
     codes->push_back({.op = Instruction::LOAD_BOOL});
@@ -669,7 +653,10 @@ Node *Parser::read_toplevel() {
   return root;
 }
 
-Node *Parser::parse() { return read_toplevel(); }
+Node *Parser::parse() {
+  local_ident_table.init();
+  return read_toplevel();
+}
 
 // void print_code(const vector<Code> &codes) {
 //   printf("---------- code ----------\n");
