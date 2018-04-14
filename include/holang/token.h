@@ -44,6 +44,8 @@ static std::ostream &operator<<(std::ostream &out, const Token *token) {
     return out << token->type << " " << token->keyword;
   } else if (token->type == TIDENT) {
     return out << token->type << " " << *token->sval;
+  } else if (token->type == TNUMBER) {
+    return out << token->type << " " << *token->sval;
   } else {
     return out << token->type;
   }

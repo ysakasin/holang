@@ -4,6 +4,7 @@
 #include "holang/string.h"
 
 #include <cstring>
+#include <fstream>
 #include <iostream>
 
 /*
@@ -119,8 +120,10 @@ public:
       case Instruction::LOAD_OBJ_FIELD:
         load_obj_field();
         break;
+      case Instruction::IMPORT:
+        import();
+        break;
       default:
-
         std::cerr << "not implemented: " << op << std::endl;
         exit(1);
       }
@@ -336,6 +339,42 @@ private:
     const std::string &field = *take_code().sval;
     Value val = stack_pop();
     stack_push(val.find_field(field));
+  }
+
+  // import
+  // [str] -> []
+  void import() {
+    Value target = stack_pop();
+    std::string path = target.to_s();
+    std::ifstream ifs(path);
+    if (ifs.fail()) {
+      std::cerr << path << ": Not found." << std::endl;
+      exit(1);
+    }
+    std::istreambuf_iterator<char> it(ifs);
+    std::istreambuf_iterator<char> last;
+    std::string source_code(it, last);
+
+    std::vector<Token *> token_chain;
+    lex(source_code, token_chain);
+
+    holang::Parser parser(token_chain);
+    Node *root = parser.parse();
+    std::vector<Code> *other_codes = new std::vector<Code>();
+    root->code_gen(other_codes);
+    other_codes->push_back({Instruction::RET});
+    auto self = stack[ep];
+    stack_push(self);
+
+    for (int i = 0; i < size_local_idents(); i++) {
+      stack_push(0);
+    }
+    prev_ep.push_back(ep);
+    save_current_codes();
+
+    codes = other_codes;
+    pc = 0;
+    ep = sp - size_local_idents() - 1;
   }
 
   void stack_push(int x) { stack_push(Value(x)); }

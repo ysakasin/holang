@@ -28,6 +28,7 @@ void init_keywords() {
   keywords["."] = Keyword::DOT;
   keywords["func"] = Keyword::FUNC;
   keywords["class"] = Keyword::CLASS;
+  keywords["import"] = Keyword::IMPORT;
 }
 
 int code_head;

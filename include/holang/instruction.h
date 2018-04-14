@@ -27,6 +27,7 @@ enum class Instruction {
   LOAD_CLASS,
   PREV_ENV,
   LOAD_OBJ_FIELD,
+  IMPORT,
 };
 
 static std::ostream &operator<<(std::ostream &out,
@@ -78,5 +79,7 @@ static std::ostream &operator<<(std::ostream &out,
     return out << "PREV_ENV";
   case Instruction::LOAD_OBJ_FIELD:
     return out << "LOAD_OBJ_FIELD";
+  case Instruction::IMPORT:
+    return out << "IMPORT";
   }
 }

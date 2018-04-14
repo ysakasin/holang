@@ -62,6 +62,7 @@ private:
   Node *read_if();
   Node *read_funcdef();
   Node *read_klassdef();
+  Node *read_import();
   Node *read_suite();
 
   Node *read_expr();
@@ -111,6 +112,6 @@ private:
 
 private:
   const std::vector<Token *> token_chain;
-  int head;
+  int head = 0;
 };
 } // namespace holang

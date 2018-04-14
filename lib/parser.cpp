@@ -29,7 +29,7 @@ public:
   void init() {
     tables.resize(1);
     tables.back().clear();
-    tables.back.push_back("self");
+    tables.back().push_back("self");
   }
 };
 
@@ -381,6 +381,21 @@ struct SendNode : public Node {
   }
 };
 
+struct ImportNode : public Node {
+  Node *module;
+  ImportNode(Node *module) : module(module) {}
+  virtual void print(int offset) {
+    print_offset(offset);
+    cout << "Import" << endl;
+    module->print(offset + 1);
+  }
+
+  virtual void code_gen(vector<Code> *codes) {
+    module->code_gen(codes);
+    codes->push_back({Instruction::IMPORT});
+  }
+};
+
 void Parser::take(TokenType type) {
   Token *token = get();
   if (token->type != type) {
@@ -579,6 +594,12 @@ Node *Parser::read_klassdef() {
   return new KlassDefNode(*ident->sval, body);
 }
 
+Node *Parser::read_import() {
+  take(Keyword::IMPORT);
+  Node *node = read_expr();
+  return new ImportNode(node);
+}
+
 Node *Parser::read_block() {
   take(Keyword::BRACEL);
   Node *node = read_stmts();
@@ -621,6 +642,8 @@ Node *Parser::read_stmt() {
     node = read_funcdef();
   } else if (is_next(Keyword::CLASS)) {
     node = read_klassdef();
+  } else if (is_next(Keyword::IMPORT)) {
+    node = read_import();
   } else if (is_next(Keyword::BRACEL)) {
     node = read_suite();
   } else {

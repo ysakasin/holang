@@ -22,6 +22,7 @@ enum class Keyword {
   DOT,
   FUNC,
   CLASS,
+  IMPORT,
 };
 
 static std::ostream &operator<<(std::ostream &out, const Keyword keyword) {
@@ -64,5 +65,7 @@ static std::ostream &operator<<(std::ostream &out, const Keyword keyword) {
     return out << "func";
   case Keyword::CLASS:
     return out << "class";
+  case Keyword::IMPORT:
+    return out << "import";
   }
 }
