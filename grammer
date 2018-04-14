@@ -1,8 +1,9 @@
+// This file is a just memo.
 toplevel := (stmt NEWLINE)* EOF
-stmt := expr_stmt | if_stmt | funcdef | classdef | suite
+stmt := expr_stmt | if_stmt | funcdef | classdef | import_stmt | suite
 
 expr_stmt := expr
-expt := assign_expr
+expr := assign_expr
 assign_expr := [NAME "="] comp_expr
 comp_expr := arith_expr [comp_op arith_expr]
 comp_op := "<" | ">"
@@ -27,5 +28,6 @@ block := suite | "{" "|" [paramlist] "|" NEWLINE (stmt NEWLINE)* "}"
 if_stmt := "if" expr suite ("else" stmt)
 funcdef := "func" NAME "(" [paramlist] ")" ["sealed"] suite
 classdef := "class" NAME suite
+import_stmt := "import" expr
 paramlist := NAME ("," NAME)*
 suite := "{" NEWLINE (stmt NEWLINE)* "}"
