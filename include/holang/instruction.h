@@ -16,8 +16,8 @@ enum class Instruction {
   DIV,
   LESS,
   GREATER,
-  LOCAL_STORE,
-  LOCAL_LOAD,
+  STORE_LOCAL,
+  LOAD_LOCAL,
   JUMP,
   JUMP_IF,
   JUMP_IFNOT,
@@ -56,10 +56,10 @@ static std::ostream &operator<<(std::ostream &out,
     return out << "LESS";
   case Instruction::GREATER:
     return out << "GREATER";
-  case Instruction::LOCAL_STORE:
-    return out << "LOCAL_STORE";
-  case Instruction::LOCAL_LOAD:
-    return out << "LOCAL_LOAD";
+  case Instruction::STORE_LOCAL:
+    return out << "STORE_LOCAL";
+  case Instruction::LOAD_LOCAL:
+    return out << "LOAD_LOCAL";
   case Instruction::JUMP:
     return out << "JUMP";
   case Instruction::JUMP_IF:

@@ -100,7 +100,7 @@ struct IdentNode : public Node {
   }
   virtual void code_gen(vector<Code> *codes) {
     // cout << ident << ":" << local_ident_table.get(ident) << endl;
-    codes->push_back({.op = Instruction::LOCAL_LOAD});
+    codes->push_back({.op = Instruction::LOAD_LOCAL});
     codes->push_back({.ival = local_ident_table.get(ident)});
   }
 };
@@ -154,7 +154,7 @@ struct AssignNode : public Node {
   virtual void code_gen(vector<Code> *codes) {
     rhs->code_gen(codes);
     // cout << lhs->ident << ":" << local_ident_table.get(lhs->ident) << endl;
-    codes->push_back({.op = Instruction::LOCAL_STORE});
+    codes->push_back({.op = Instruction::STORE_LOCAL});
     codes->push_back({.ival = local_ident_table.get(lhs->ident)});
   }
 };
@@ -710,10 +710,10 @@ Node *Parser::parse() {
 //     case Instruction::GREATER:
 //       printf("%s\n", op_str);
 //       break;
-//     case Instruction::LOCAL_STORE:
+//     case Instruction::STORE_LOCAL:
 //       printf("%s %d\n", op_str, codes[i++].ival);
 //       break;
-//     case Instruction::LOCAL_LOAD:
+//     case Instruction::LOAD_LOCAL:
 //       printf("%s %d\n", op_str, codes[i++].ival);
 //       break;
 //     case Instruction::PUT_SELF:

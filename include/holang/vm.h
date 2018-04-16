@@ -85,11 +85,11 @@ public:
       case Instruction::PUT_STRING:
         put_string();
         break;
-      case Instruction::LOCAL_LOAD:
-        local_load();
+      case Instruction::LOAD_LOCAL:
+        load_local();
         break;
-      case Instruction::LOCAL_STORE:
-        local_store();
+      case Instruction::STORE_LOCAL:
+        store_local();
         break;
       case Instruction::DEF_FUNC:
         def_func();
@@ -240,16 +240,16 @@ private:
     stack_push(new String(*str));
   }
 
-  // local_load index
+  // load_local index
   // [] -> [val]
-  void local_load() {
+  void load_local() {
     int offset = take_code().ival;
     stack_push(stack[ep + offset]);
   }
 
-  // local_store index
+  // store_local index
   // [val] -> [val]
-  void local_store() {
+  void store_local() {
     int offset = take_code().ival;
     auto v = stack_top();
     stack[ep + offset] = v;
