@@ -1,6 +1,6 @@
 #pragma once
 
-#include "holang/code.h"
+#include "holang/code.hpp"
 #include <vector>
 
 namespace holang {

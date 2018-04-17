@@ -1,6 +1,6 @@
 #pragma once
 
-#include "holang/instruction.h"
+#include "holang/instruction.hpp"
 #include <string>
 
 namespace holang {

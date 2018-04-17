@@ -1,5 +1,5 @@
-#include "holang/parser.h"
-#include "holang.h"
+#include "holang/parser.hpp"
+#include "holang.hpp"
 #include <iostream>
 #include <map>
 #include <vector>

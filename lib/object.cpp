@@ -1,5 +1,5 @@
-#include "holang/object.h"
-#include "holang.h"
+#include "holang/object.hpp"
+#include "holang.hpp"
 
 using namespace holang;
 

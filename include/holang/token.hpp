@@ -1,6 +1,6 @@
 #pragma once
 
-#include "keyword.h"
+#include "keyword.hpp"
 #include <ostream>
 
 namespace holang {

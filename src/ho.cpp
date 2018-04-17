@@ -1,6 +1,6 @@
-#include "holang.h"
-#include "holang/parser.h"
-#include "holang/vm.h"
+#include "holang.hpp"
+#include "holang/parser.hpp"
+#include "holang/vm.hpp"
 #include <fstream>
 #include <iostream>
 

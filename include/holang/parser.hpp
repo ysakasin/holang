@@ -1,7 +1,7 @@
 #pragma once
 
-#include "holang/node.h"
-#include "holang/token.h"
+#include "holang/node.hpp"
+#include "holang/token.hpp"
 #include <iostream>
 #include <vector>
 

@@ -3,11 +3,11 @@
 #include <string>
 #include <vector>
 
-#include "holang/code.h"
-#include "holang/node.h"
-#include "holang/object.h"
-#include "holang/token.h"
-#include "holang/value.h"
+#include "holang/code.hpp"
+#include "holang/node.hpp"
+#include "holang/object.hpp"
+#include "holang/token.hpp"
+#include "holang/value.hpp"
 
 namespace holang {
 void print_token(const Token *token);

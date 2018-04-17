@@ -1,6 +1,6 @@
 #pragma once
 
-#include "holang/object.h"
+#include "holang/object.hpp"
 
 namespace holang {
 class String : public Object {
