@@ -1,5 +1,6 @@
 #include "holang/parser.hpp"
 #include "holang.hpp"
+#include "holang/variable_table.hpp"
 #include <iostream>
 #include <map>
 #include <vector>
@@ -7,33 +8,7 @@
 using namespace std;
 using namespace holang;
 
-class LocalIdentTable {
-  using IdentTable = vector<string>;
-  vector<IdentTable> tables;
-
-public:
-  LocalIdentTable() : tables(1) { init(); }
-  int get(const string &ident) {
-    auto &local_idents = tables.back();
-    auto iter = find(local_idents.begin(), local_idents.end(), ident);
-    if (iter == local_idents.end()) {
-      local_idents.push_back(ident);
-      return local_idents.size() - 1;
-    } else {
-      return distance(local_idents.begin(), iter);
-    }
-  }
-  void next() { tables.push_back({"self"}); }
-  void prev() { tables.pop_back(); }
-  int size() { return tables.back().size(); }
-  void init() {
-    tables.resize(1);
-    tables.back().clear();
-    tables.back().push_back("self");
-  }
-};
-
-static LocalIdentTable local_ident_table;
+static VariableTable local_ident_table;
 
 int holang::size_local_idents() { return local_ident_table.size(); }
 
@@ -398,10 +373,7 @@ struct ImportNode : public Node {
 
 // ----- parser ----- //
 
-Node *Parser::parse() {
-  local_ident_table.init();
-  return read_toplevel();
-}
+Node *Parser::parse() { return read_toplevel(); }
 
 void Parser::take(TokenType type) {
   Token *token = get();
