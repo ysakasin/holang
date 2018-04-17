@@ -367,7 +367,7 @@ private:
     auto self = stack[ep];
     stack_push(self);
 
-    for (int i = 0; i < size_local_idents(); i++) {
+    for (int i = 0; i < parser.toplevel_val_size(); i++) {
       stack_push(0);
     }
     prev_ep.push_back(ep);
@@ -375,7 +375,7 @@ private:
 
     codes = other_codes;
     pc = 0;
-    ep = sp - size_local_idents() - 1;
+    ep = sp - parser.toplevel_val_size() - 1;
   }
 
   void stack_push(int x) { stack_push(Value(x)); }

@@ -8,10 +8,6 @@
 using namespace std;
 using namespace holang;
 
-static VariableTable local_ident_table;
-
-int holang::size_local_idents() { return local_ident_table.size(); }
-
 void exit_by_unsupported(const string &func) {
   cerr << func << " are not supported yet." << endl;
   exit(1);
@@ -68,15 +64,15 @@ struct StringLiteralNode : public Node {
 
 struct IdentNode : public Node {
   string ident;
-  IdentNode(const string &ident) : ident(ident) {}
+  int index;
+  IdentNode(const string &ident, int index) : ident(ident), index(index) {}
   virtual void print(int offset) {
     print_offset(offset);
-    cout << "Ident " << ident << endl;
+    cout << "Ident " << ident << " : " << index << endl;
   }
   virtual void code_gen(vector<Code> *codes) {
-    // cout << ident << ":" << local_ident_table.get(ident) << endl;
     codes->push_back({.op = Instruction::LOAD_LOCAL});
-    codes->push_back({.ival = local_ident_table.get(ident)});
+    codes->push_back({.ival = index});
   }
 };
 
@@ -123,14 +119,13 @@ struct AssignNode : public Node {
   AssignNode(IdentNode *ident, Node *rhs) : lhs(ident), rhs(rhs) {}
   virtual void print(int offset) {
     print_offset(offset);
-    cout << "Assign " << lhs->ident << endl;
+    cout << "Assign " << lhs->ident << " : " << lhs->index << endl;
     rhs->print(offset + 1);
   }
   virtual void code_gen(vector<Code> *codes) {
     rhs->code_gen(codes);
-    // cout << lhs->ident << ":" << local_ident_table.get(lhs->ident) << endl;
     codes->push_back({.op = Instruction::STORE_LOCAL});
-    codes->push_back({.ival = local_ident_table.get(lhs->ident)});
+    codes->push_back({.ival = lhs->index});
   }
 };
 
@@ -251,24 +246,12 @@ struct FuncDefNode : public Node {
   }
   virtual void code_gen(vector<Code> *codes) {
     vector<Code> body_code;
-    local_ident_table.next();
 
-    for (const string *param : params) {
-      local_ident_table.get(*param);
-    }
     body->code_gen(&body_code);
-    // cout << "def:" << body_code.size() << endl;
     body_code.push_back({Instruction::RET});
     codes->push_back({Instruction::DEF_FUNC});
     codes->push_back({.sval = &name});
     codes->push_back({.objval = (Object *)new Func(body_code)});
-    // set_func(name, new Func(body_code));
-    local_ident_table.prev();
-
-    // print_code(body_code);
-
-    // codes->push_back({Instruction::PUT_BOOL});
-    // codes->push_back({.bval = true});
   }
 };
 
@@ -451,6 +434,7 @@ Node *Parser::read_if() {
 Node *Parser::read_funcdef() {
   take(Keyword::FUNC);
   Token *ident = get_ident();
+  variable_table.next();
 
   take(Keyword::PARENL);
   vector<string *> params;
@@ -458,6 +442,7 @@ Node *Parser::read_funcdef() {
   take(Keyword::PARENR);
 
   Node *body = read_suite();
+  variable_table.prev();
   return new FuncDefNode(*ident->sval, params, body);
 }
 
@@ -500,7 +485,9 @@ Node *Parser::read_expr() { return read_assignment_expr(); }
 Node *Parser::read_assignment_expr() {
   Token *token = get();
   if (token->type == TIDENT && next_token(Keyword::ASSIGN)) {
-    return new AssignNode(new IdentNode(*token->sval), read_assignment_expr());
+    int index = variable_table.get(*token->sval);
+    return new AssignNode(new IdentNode(*token->sval, index),
+                          read_assignment_expr());
   }
   unget();
   return read_comp_expr();
@@ -613,7 +600,8 @@ Node *Parser::read_name_or_funccall(bool is_trailer) {
     if (is_trailer) {
       return new RefFieldNode(ident->sval);
     } else {
-      return new IdentNode(*ident->sval);
+      int index = variable_table.get(*ident->sval);
+      return new IdentNode(*ident->sval, index);
     }
   }
 }
@@ -623,11 +611,6 @@ Node *Parser::read_block() {
   Node *node = read_stmts();
   take(Keyword::BRACER);
   return node;
-}
-
-Node *Parser::read_ident() {
-  Token *token = get_ident();
-  return new IdentNode(*token->sval);
 }
 
 void Parser::read_exprs(vector<Node *> &args) {

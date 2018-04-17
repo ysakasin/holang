@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
   root->code_gen(&codes);
   // codes[1].ival = size_local_idents();
 
-  HolangVM vm(size_local_idents());
+  HolangVM vm(parser.toplevel_val_size());
   vm.codes = &codes;
   cout << "----- vm.eval() begin -----" << endl;
   vm.eval();

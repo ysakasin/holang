@@ -2,6 +2,7 @@
 
 #include "holang/node.hpp"
 #include "holang/token.hpp"
+#include "holang/variable_table.hpp"
 #include <iostream>
 #include <vector>
 
@@ -10,6 +11,7 @@ class Parser {
 public:
   Parser(const std::vector<Token *> &token_chain) : token_chain(token_chain) {}
   Node *parse();
+  int toplevel_val_size() { return variable_table.size(); }
 
 private:
   Token *get() { return token_chain[head++]; }
@@ -79,7 +81,6 @@ private:
   Node *read_string();
   Node *read_name_or_funccall(bool is_trailer);
   Node *read_block();
-  Node *read_ident();
   void read_exprs(std::vector<Node *> &args);
   void read_arglist(std::vector<Node *> *args);
   void read_params(std::vector<std::string *> *params);
@@ -112,6 +113,7 @@ private:
 
 private:
   const std::vector<Token *> token_chain;
+  VariableTable variable_table;
   int head = 0;
 };
 } // namespace holang
