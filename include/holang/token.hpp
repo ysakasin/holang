@@ -4,13 +4,13 @@
 #include <ostream>
 
 namespace holang {
-enum TokenType {
-  TNUMBER,
-  TSTRING,
-  TKEYWORD,
-  TIDENT,
-  TNEWLINE,
-  TEOF,
+enum class TokenType {
+  NUMBER,
+  STRING,
+  KEYWORD,
+  IDENT,
+  NEWLINE,
+  TEOF, // EOF is defined by stdio.h
 };
 
 struct Token {
@@ -25,27 +25,27 @@ struct Token {
 
 static std::ostream &operator<<(std::ostream &out, const TokenType type) {
   switch (type) {
-  case TNUMBER:
-    return out << "TNUMBER";
-  case TSTRING:
-    return out << "TSTRING";
-  case TKEYWORD:
-    return out << "TKEYWORD";
-  case TIDENT:
-    return out << "TIDENT";
-  case TNEWLINE:
-    return out << "TNEWLINE";
-  case TEOF:
-    return out << "TEOF";
+  case TokenType::NUMBER:
+    return out << "NUMBER";
+  case TokenType::STRING:
+    return out << "STRING";
+  case TokenType::KEYWORD:
+    return out << "KEYWORD";
+  case TokenType::IDENT:
+    return out << "IDENT";
+  case TokenType::NEWLINE:
+    return out << "NEWLINE";
+  case TokenType::TEOF:
+    return out << "EOF";
   }
 }
 
 static std::ostream &operator<<(std::ostream &out, const Token *token) {
-  if (token->type == TKEYWORD) {
+  if (token->type == TokenType::KEYWORD) {
     return out << token->type << " " << token->keyword;
-  } else if (token->type == TIDENT) {
+  } else if (token->type == TokenType::IDENT) {
     return out << token->type << " " << *token->sval;
-  } else if (token->type == TNUMBER) {
+  } else if (token->type == TokenType::NUMBER) {
     return out << token->type << " " << *token->sval;
   } else {
     return out << token->type;

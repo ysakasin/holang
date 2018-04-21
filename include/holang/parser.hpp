@@ -17,8 +17,8 @@ private:
   Token *get() { return token_chain[head++]; }
   Token *get_ident() {
     Token *token = get();
-    if (token->type != TIDENT) {
-      exit_by_unexpected(TIDENT, token);
+    if (token->type != TokenType::IDENT) {
+      exit_by_unexpected(TokenType::IDENT, token);
     }
     return token;
   }
@@ -35,12 +35,12 @@ private:
   }
   bool is_next(Keyword keyword, int offset = 0) {
     Token *token = token_chain[head - offset];
-    return token->type == TKEYWORD && token->keyword == keyword;
+    return token->type == TokenType::KEYWORD && token->keyword == keyword;
   }
-  bool is_eof() { return is_next(TEOF); }
+  bool is_eof() { return is_next(TokenType::TEOF); }
   bool next_token(Keyword keyword) {
     Token *token = get();
-    if (token->type == TKEYWORD && token->keyword == keyword) {
+    if (token->type == TokenType::KEYWORD && token->keyword == keyword) {
       return true;
     }
     unget();

@@ -21,13 +21,13 @@ void Parser::take(TokenType type) {
 
 void Parser::take(Keyword keyword) {
   Token *token = get();
-  if (token->type != TKEYWORD || token->keyword != keyword) {
+  if (token->type != TokenType::KEYWORD || token->keyword != keyword) {
     exit_by_unexpected(keyword, token);
   }
 }
 
 void Parser::consume_newlines() {
-  while (next_token(TNEWLINE)) {
+  while (next_token(TokenType::NEWLINE)) {
   }
 }
 
@@ -138,7 +138,7 @@ Node *Parser::read_expr() { return read_assignment_expr(); }
 
 Node *Parser::read_assignment_expr() {
   Token *token = get();
-  if (token->type == TIDENT && next_token(Keyword::ASSIGN)) {
+  if (token->type == TokenType::IDENT && next_token(Keyword::ASSIGN)) {
     int index = variable_table.get(*token->sval);
     return new AssignNode(new IdentNode(*token->sval, index),
                           read_assignment_expr());
@@ -215,15 +215,15 @@ Node *Parser::read_traier() {
 // ----- prime ----- //
 
 Node *Parser::read_prime() {
-  if (is_next(TNUMBER)) {
+  if (is_next(TokenType::NUMBER)) {
     return read_number();
-  } else if (is_next(TIDENT)) {
+  } else if (is_next(TokenType::IDENT)) {
     return read_name_or_funccall(false);
   } else if (next_token(Keyword::TRUE)) {
     return new BoolLiteralNode(true);
   } else if (next_token(Keyword::FALSE)) {
     return new BoolLiteralNode(false);
-  } else if (is_next(TSTRING)) {
+  } else if (is_next(TokenType::STRING)) {
     return read_string();
   }
   exit_by_unexpected("something prime", get());
@@ -288,7 +288,7 @@ void Parser::read_arglist(vector<Node *> *arglist) {
 }
 
 void Parser::read_params(vector<string *> *params) {
-  if (!is_next(TIDENT)) {
+  if (!is_next(TokenType::IDENT)) {
     return;
   }
 
