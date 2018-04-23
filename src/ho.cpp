@@ -38,8 +38,8 @@ int main(int argc, char *argv[]) {
 
   HolangVM vm(parser.toplevel_val_size());
   vm.codes = &codes;
-  cout << "----- vm.eval() begin -----" << endl;
+  // cout << "----- vm.eval() begin -----" << endl;
   vm.eval();
-  cout << "----- vm.eval() end -------" << endl;
+  // cout << "----- vm.eval() end -------" << endl;
   // vm.print_stack();
 }

@@ -21,11 +21,10 @@
 
 namespace holang {
 Value print_func(Value *, Value *args, int argc) {
-  std::cout << "print!!!!!!:";
+  // std::cout << "print!!!!!!:";
   for (int i = 0; i < argc; i++) {
-    std::cout << args[i].to_s() << ":";
+    std::cout << args[i].to_s() << std::endl;
   }
-  std::cout << std::endl;
   return Value(true);
 }
 
