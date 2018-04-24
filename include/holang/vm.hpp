@@ -69,6 +69,9 @@ public:
       case Instruction::SUB:
         binop_sub();
         break;
+      case Instruction::MUL:
+        binop_mul();
+        break;
       case Instruction::LESS:
         binop_less();
         break;
@@ -188,6 +191,18 @@ private:
       //   rhs.dval}));
     } else {
       std::cerr << "can not cal -" << std::endl;
+      std::cerr << rhs.to_s() << std::endl;
+      std::cerr << lhs.to_s() << std::endl;
+      exit(1);
+    }
+  }
+  void binop_mul() {
+    auto rhs = stack_pop();
+    auto lhs = stack_pop();
+    if (lhs.type == Type::INT && rhs.type == Type::INT) {
+      stack_push(lhs.ival * rhs.ival);
+    } else {
+      std::cerr << "can not cal *" << std::endl;
       std::cerr << rhs.to_s() << std::endl;
       std::cerr << lhs.to_s() << std::endl;
       exit(1);
