@@ -8,7 +8,7 @@ for src in $codes; do
   testfile="test/${base}.out"
   printf "$src: "
   build/ho $src 1> $tmpfile
-  diff $tmpfile $testfile
+  diff $tmpfile $testfile -u
   if [ $? = 0 ]; then
     printf "\e[32m"
     echo "PASS"
