@@ -8,8 +8,8 @@ class Car {
   }
 }
 
-print(self.String)
-print(self.Car)
+println(self.String)
+println(self.Car)
 car = self.Car.new()
-print(car.run())
-print(car.hoge())
+println(car.run())
+println(car.hoge())

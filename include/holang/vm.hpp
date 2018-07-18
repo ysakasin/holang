@@ -21,7 +21,18 @@
 
 namespace holang {
 Value print_func(Value *, Value *args, int argc) {
-  // std::cout << "print!!!!!!:";
+  for (int i = 0; i < argc; i++) {
+    std::cout << args[i].to_s();
+  }
+  return Value(true);
+}
+
+Value println_func(Value *, Value *args, int argc) {
+  if (argc == 0) {
+    std::cout << std::endl;
+    return Value(true);
+  }
+
   for (int i = 0; i < argc; i++) {
     std::cout << args[i].to_s() << std::endl;
   }
@@ -48,6 +59,8 @@ public:
     sp += local_val_size;
     NativeFunc native = print_func;
     main_obj->set_method("print", new Func(native));
+    NativeFunc native_println = println_func;
+    main_obj->set_method("println", new Func(native_println));
 
     // env["print"] = new Func(native);
 
@@ -71,6 +84,9 @@ public:
         break;
       case Instruction::MUL:
         binop_mul();
+        break;
+      case Instruction::MOD:
+        binop_mod();
         break;
       case Instruction::LESS:
         binop_less();
@@ -206,6 +222,18 @@ private:
       stack_push(lhs.ival * rhs.ival);
     } else {
       std::cerr << "can not cal *" << std::endl;
+      std::cerr << rhs.to_s() << std::endl;
+      std::cerr << lhs.to_s() << std::endl;
+      exit(1);
+    }
+  }
+  void binop_mod() {
+    auto rhs = stack_pop();
+    auto lhs = stack_pop();
+    if (lhs.type == Type::INT && rhs.type == Type::INT) {
+      stack_push(lhs.ival % rhs.ival);
+    } else {
+      std::cerr << "can not cal %" << std::endl;
       std::cerr << rhs.to_s() << std::endl;
       std::cerr << lhs.to_s() << std::endl;
       exit(1);

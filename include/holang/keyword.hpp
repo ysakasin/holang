@@ -8,6 +8,7 @@ enum class Keyword {
   SUB,
   MUL,
   DIV,
+  MOD,
   LT,
   GT,
   ASSIGN,
@@ -36,6 +37,8 @@ static std::ostream &operator<<(std::ostream &out, const Keyword keyword) {
     return out << "*";
   case Keyword::DIV:
     return out << "/";
+  case Keyword::MOD:
+    return out << "%";
   case Keyword::LT:
     return out << "<";
   case Keyword::GT:

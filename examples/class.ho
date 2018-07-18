@@ -8,5 +8,5 @@ class String {
     "hoge"
   }
 }
-print(1.prev())
-print("foo".hoge())
+println(1.prev())
+println("foo".hoge())

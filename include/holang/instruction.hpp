@@ -14,6 +14,7 @@ enum class Instruction {
   SUB,
   MUL,
   DIV,
+  MOD,
   LESS,
   GREATER,
   STORE_LOCAL,
@@ -52,6 +53,8 @@ static std::ostream &operator<<(std::ostream &out,
     return out << "MUL";
   case Instruction::DIV:
     return out << "DIV";
+  case Instruction::MOD:
+    return out << "MOD";
   case Instruction::LESS:
     return out << "LESS";
   case Instruction::GREATER:

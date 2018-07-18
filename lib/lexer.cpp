@@ -14,6 +14,7 @@ void holang::init_keywords() {
   keywords["-"] = Keyword::SUB;
   keywords["*"] = Keyword::MUL;
   keywords["/"] = Keyword::DIV;
+  keywords["%"] = Keyword::MOD;
   keywords["<"] = Keyword::LT;
   keywords[">"] = Keyword::GT;
   keywords["="] = Keyword::ASSIGN;
@@ -139,6 +140,8 @@ Token *take_token() {
     return make_keyword(Keyword::MUL);
   case '/':
     return make_keyword(Keyword::DIV);
+  case '%':
+    return make_keyword(Keyword::MOD);
   case '<':
     return make_keyword(Keyword::LT);
   case '>':

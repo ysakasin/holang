@@ -9,10 +9,10 @@ if false {
 } else {
   a + b
 }
-print(a + b, a, b, false)
-print(true)
+println(a + b, a, b, false)
+println(true)
 func print_wrap(obj) {
-  print(obj)
+  println(obj)
   if obj > 0 {
     print_wrap(obj - 1)
   }

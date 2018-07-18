@@ -20,6 +20,8 @@ Instruction to_opcode(Keyword c) {
     return Instruction::MUL;
   case Keyword::DIV:
     return Instruction::DIV;
+  case Keyword::MOD:
+    return Instruction::MOD;
   case Keyword::LT:
     return Instruction::LESS;
   case Keyword::GT:

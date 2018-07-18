@@ -168,6 +168,8 @@ Node *Parser::read_multiplicative_expr() {
       node = ast_binop(Keyword::MUL, node, read_factor());
     else if (next_token(Keyword::DIV))
       node = ast_binop(Keyword::DIV, node, read_factor());
+    else if (next_token(Keyword::MOD))
+      node = ast_binop(Keyword::MOD, node, read_factor());
     else
       return node;
   }

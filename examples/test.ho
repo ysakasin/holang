@@ -1,5 +1,5 @@
 func echo(a) {
   a
 }
-print(echo(1))
-print("Hello World")
+println(echo(1))
+println("Hello World")
