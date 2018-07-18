@@ -39,14 +39,13 @@ Value println_func(Value *, Value *args, int argc) {
   return Value(true);
 }
 
-Value next_func(Value *self, Value *, int) { return Value(self->ival + 1); }
-
-Value reverse_func(Value *self, Value *, int) {
-  String *str = (String *)self->objval;
-  std::string rev = str->str;
-  std::reverse(rev.begin(), rev.end());
-  return Value((Object *)new String(rev));
+Value getline_func(Value *, Value *, int) {
+  std::string str;
+  cin >> str;
+  return Value((Object *)new String(str));
 }
+
+Value next_func(Value *self, Value *, int) { return Value(self->ival + 1); }
 
 class HolangVM {
   using Codes = std::vector<Code>;
@@ -61,13 +60,15 @@ public:
     main_obj->set_method("print", new Func(native));
     NativeFunc native_println = println_func;
     main_obj->set_method("println", new Func(native_println));
+    NativeFunc native_getline = getline_func;
+    main_obj->set_method("getline", new Func(native_getline));
 
     // env["print"] = new Func(native);
 
     // klass_env["Int"] = new Klass("Int");
     NativeFunc next_native = next_func;
     Klass::Int.set_method("next", new Func(next_native));
-    Klass::String.set_method("reverse", new Func((NativeFunc)reverse_func));
+    String::init();
 
     main_obj->set_field("Int", &Klass::Int);
     main_obj->set_field("String", &Klass::String);

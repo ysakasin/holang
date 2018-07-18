@@ -2,6 +2,7 @@ set(holang_src
     lexer.cpp
     object.cpp
     parser.cpp
+    string.cpp
     node/int_literal_node.cpp
     node/bool_literal_node.cpp
     node/string_literal_node.cpp
