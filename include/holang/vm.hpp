@@ -86,6 +86,9 @@ public:
       case Instruction::MUL:
         binop_mul();
         break;
+      case Instruction::DIV:
+        binop_div();
+        break;
       case Instruction::MOD:
         binop_mod();
         break;
@@ -223,6 +226,18 @@ private:
       stack_push(lhs.ival * rhs.ival);
     } else {
       std::cerr << "can not cal *" << std::endl;
+      std::cerr << rhs.to_s() << std::endl;
+      std::cerr << lhs.to_s() << std::endl;
+      exit(1);
+    }
+  }
+  void binop_div() {
+    auto rhs = stack_pop();
+    auto lhs = stack_pop();
+    if (lhs.type == Type::INT && rhs.type == Type::INT) {
+      stack_push(lhs.ival / rhs.ival);
+    } else {
+      std::cerr << "can not cal /" << std::endl;
       std::cerr << rhs.to_s() << std::endl;
       std::cerr << lhs.to_s() << std::endl;
       exit(1);
