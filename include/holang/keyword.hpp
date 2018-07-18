@@ -11,6 +11,7 @@ enum class Keyword {
   MOD,
   LT,
   GT,
+  EQUAL,
   ASSIGN,
   TRUE,
   FALSE,
@@ -43,6 +44,8 @@ static std::ostream &operator<<(std::ostream &out, const Keyword keyword) {
     return out << "<";
   case Keyword::GT:
     return out << ">";
+  case Keyword::EQUAL:
+    return out << "==";
   case Keyword::ASSIGN:
     return out << "=";
   case Keyword::TRUE:

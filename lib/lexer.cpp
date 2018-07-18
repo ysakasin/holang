@@ -147,7 +147,12 @@ Token *take_token() {
   case '>':
     return make_keyword(Keyword::GT);
   case '=':
-    return make_keyword(Keyword::ASSIGN);
+    if (nextc() == '=') {
+      readc();
+      return make_keyword(Keyword::EQUAL);
+    } else {
+      return make_keyword(Keyword::ASSIGN);
+    }
   case '(':
     return make_keyword(Keyword::PARENL);
   case ')':

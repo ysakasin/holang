@@ -144,11 +144,19 @@ Node *Parser::read_assignment_expr() {
                           read_assignment_expr());
   }
   unget();
-  return read_comp_expr();
+  return read_equal_expr();
 }
 
 Node *ast_binop(Keyword op, Node *lhs, Node *rhs) {
   return new BinopNode(op, lhs, rhs);
+}
+
+Node *Parser::read_equal_expr() {
+  Node *node = read_comp_expr();
+  if (next_token(Keyword::EQUAL))
+    return ast_binop(Keyword::EQUAL, node, read_comp_expr());
+  else
+    return node;
 }
 
 Node *Parser::read_comp_expr() {

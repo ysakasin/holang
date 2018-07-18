@@ -17,6 +17,7 @@ enum class Instruction {
   MOD,
   LESS,
   GREATER,
+  EQUAL,
   STORE_LOCAL,
   LOAD_LOCAL,
   JUMP,
@@ -59,6 +60,8 @@ static std::ostream &operator<<(std::ostream &out,
     return out << "LESS";
   case Instruction::GREATER:
     return out << "GREATER";
+  case Instruction::EQUAL:
+    return out << "EQUAL";
   case Instruction::STORE_LOCAL:
     return out << "STORE_LOCAL";
   case Instruction::LOAD_LOCAL:

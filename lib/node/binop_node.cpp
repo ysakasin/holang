@@ -26,6 +26,8 @@ Instruction to_opcode(Keyword c) {
     return Instruction::LESS;
   case Keyword::GT:
     return Instruction::GREATER;
+  case Keyword::EQUAL:
+    return Instruction::EQUAL;
   default:
     cerr << "err: to_opecode" << endl;
     exit(1);

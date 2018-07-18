@@ -69,6 +69,7 @@ private:
 
   Node *read_expr();
   Node *read_assignment_expr();
+  Node *read_equal_expr();
   Node *read_comp_expr();
   Node *read_multiplicative_expr();
   Node *read_additive_expr();

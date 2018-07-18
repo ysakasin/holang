@@ -98,6 +98,9 @@ public:
       case Instruction::GREATER:
         binop_greater();
         break;
+      case Instruction::EQUAL:
+        binop_equal();
+        break;
       case Instruction::POP:
         sp--;
         break;
@@ -287,6 +290,19 @@ private:
       stack_push(lhs.ival > rhs.ival);
     } else {
       std::cerr << "can not cal >" << std::endl;
+      std::cerr << rhs.to_s() << std::endl;
+      std::cerr << lhs.to_s() << std::endl;
+      exit(1);
+    }
+  }
+
+  void binop_equal() {
+    auto rhs = stack_pop();
+    auto lhs = stack_pop();
+    if (lhs.type == Type::INT && rhs.type == Type::INT) {
+      stack_push(lhs.ival == rhs.ival);
+    } else {
+      std::cerr << "can not cal ==" << std::endl;
       std::cerr << rhs.to_s() << std::endl;
       std::cerr << lhs.to_s() << std::endl;
       exit(1);
