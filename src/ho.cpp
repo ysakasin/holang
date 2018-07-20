@@ -8,9 +8,17 @@ using namespace std;
 using namespace holang;
 
 int main(int argc, char *argv[]) {
-  if (argc != 2) {
+  bool show_ast = false;
+  if (argc < 2) {
     cerr << "require source code" << endl;
     return -1;
+  }
+
+  if (argc >= 3) {
+    string opt(argv[2]);
+    if (opt == "--ast") {
+      show_ast = true;
+    }
   }
 
   string src(argv[1]);
@@ -34,6 +42,10 @@ int main(int argc, char *argv[]) {
   // codes.push_back({.op = Instruction::PUT_ENV});
   // codes.push_back({.ival = 0});
   if (root == nullptr) {
+    return 0;
+  }
+  if (show_ast) {
+    root->print(0);
     return 0;
   }
   root->code_gen(&codes);
