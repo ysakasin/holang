@@ -58,7 +58,6 @@ private:
 
 private:
   Node *read_toplevel();
-  Node *read_stmts();
 
   Node *read_stmt();
   Node *read_if();

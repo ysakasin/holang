@@ -5,6 +5,7 @@
 
 namespace holang {
 class Object;
+struct Func;
 
 union Code {
   Instruction op;
@@ -12,6 +13,7 @@ union Code {
   double dval;
   bool bval;
   std::string *sval;
+  Func *funcval;
   Object *objval;
 };
 } // namespace holang

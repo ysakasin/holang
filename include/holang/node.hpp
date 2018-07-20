@@ -67,6 +67,18 @@ public:
   const int index;
 };
 
+struct LambdaNode : public Node {
+public:
+  LambdaNode(const vector<string *> &params, Node *body)
+      : params(params), body(body) {}
+  void print(int offset) override;
+  void code_gen(vector<Code> *codes) override;
+
+private:
+  vector<string *> params;
+  Node *body;
+};
+
 struct BinopNode : public Node {
 public:
   BinopNode(Keyword op, Node *lhs, Node *rhs) : op(op), lhs(lhs), rhs(rhs) {}
@@ -132,6 +144,7 @@ public:
 private:
   string name;
   const vector<Node *> args;
+  Node *block;
   bool is_trailer;
 };
 

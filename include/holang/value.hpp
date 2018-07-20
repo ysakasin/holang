@@ -8,8 +8,11 @@ enum class Type {
   INT,
   DOUBLE,
   BOOL,
+  FUNCTION,
   OBJECT,
 };
+
+struct Func;
 
 struct Value {
   Type type;
@@ -17,6 +20,7 @@ struct Value {
     int ival;
     double dval;
     bool bval;
+    Func *funcval;
     Object *objval;
   };
 
@@ -24,6 +28,7 @@ struct Value {
   Value(int i) : type(Type::INT), ival(i) {}
   Value(double d) : type(Type::DOUBLE), dval(d) {}
   Value(bool b) : type(Type::BOOL), bval(b) {}
+  Value(Func *func) : type(Type::FUNCTION), funcval(func) {}
   Value(Object *obj) : type(Type::OBJECT), objval(obj) {}
 
   Func *find_method(const std::string &name);
@@ -37,8 +42,12 @@ struct Value {
       return bval ? "true" : "false";
     case Type::DOUBLE:
       return std::to_string(dval);
+    case Type::FUNCTION:
+      return "Func";
     case Type::OBJECT:
       return objval->to_s();
+    default:
+      return "known";
     }
   }
 };

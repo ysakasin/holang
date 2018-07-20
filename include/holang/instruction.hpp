@@ -9,6 +9,7 @@ enum class Instruction {
   PUT_INT,
   PUT_BOOL,
   PUT_STRING,
+  PUT_LAMBDA,
   POP,
   ADD,
   SUB,
@@ -44,6 +45,8 @@ static std::ostream &operator<<(std::ostream &out,
     return out << "PUT_BOOL";
   case Instruction::PUT_STRING:
     return out << "PUT_STRING";
+  case Instruction::PUT_LAMBDA:
+    return out << "PUT_LAMBDA";
   case Instruction::POP:
     return out << "POP";
   case Instruction::ADD:

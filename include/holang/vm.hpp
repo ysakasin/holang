@@ -1,11 +1,13 @@
 #pragma once
 
 #include "holang.hpp"
+#include "holang/parser.hpp"
 #include "holang/string.hpp"
 
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <limits>
 
 /*
 # Stack layout
@@ -20,14 +22,14 @@
 */
 
 namespace holang {
-Value print_func(Value *, Value *args, int argc) {
+static Value print_func(Value *, Value *args, int argc) {
   for (int i = 0; i < argc; i++) {
     std::cout << args[i].to_s();
   }
   return Value(true);
 }
 
-Value println_func(Value *, Value *args, int argc) {
+static Value println_func(Value *, Value *args, int argc) {
   if (argc == 0) {
     std::cout << std::endl;
     return Value(true);
@@ -39,23 +41,60 @@ Value println_func(Value *, Value *args, int argc) {
   return Value(true);
 }
 
-Value getline_func(Value *, Value *, int) {
+static Value getline_func(Value *, Value *, int) {
   std::string str;
   cin >> str;
   return Value((Object *)new String(str));
 }
 
-Value next_func(Value *self, Value *, int) { return Value(self->ival + 1); }
+static Value next_func(Value *self, Value *, int) {
+  return Value(self->ival + 1);
+}
+
+void call_func_argc_zero(Value *self, Func *func);
+
+static Value times_func(Value *self, Value *args, int argc) {
+  if (argc != 1) {
+    std::cerr << "invalid argc" << std::endl;
+    exit(1);
+  }
+
+  if (args[0].type != Type::FUNCTION) {
+    std::cerr << "have to func" << std::endl;
+    std::cerr << argc << std::endl;
+    std::cerr << args[0].to_s() << std::endl;
+    exit(1);
+  }
+
+  Func *func = args[0].funcval;
+  for (int i = 0; i < self->ival; i++) {
+    call_func_argc_zero(self, func);
+  }
+  return Value(true);
+}
 
 class HolangVM {
   using Codes = std::vector<Code>;
 
 public:
   HolangVM(int local_val_size) {
-    stack = new Value[stack_size];
-    main_obj = new Object();
-    stack_push(main_obj);
+    init_main_obj();
+    if (stack == nullptr)
+      stack = new Value[stack_size];
+    stack_push(HolangVM::main_obj);
     sp += local_val_size;
+  }
+
+  ~HolangVM() {
+    if (stack != nullptr)
+      delete[] stack;
+  }
+
+  void init_main_obj() {
+    if (main_obj != nullptr) {
+      return;
+    }
+    main_obj = new Object();
     NativeFunc native = print_func;
     main_obj->set_method("print", new Func(native));
     NativeFunc native_println = println_func;
@@ -63,16 +102,15 @@ public:
     NativeFunc native_getline = getline_func;
     main_obj->set_method("getline", new Func(native_getline));
 
-    // env["print"] = new Func(native);
-
-    // klass_env["Int"] = new Klass("Int");
     NativeFunc next_native = next_func;
     Klass::Int.set_method("next", new Func(next_native));
+    Klass::Int.set_method("times", new Func(times_func));
     String::init();
 
     main_obj->set_field("Int", &Klass::Int);
     main_obj->set_field("String", &Klass::String);
   }
+
   void eval() {
     while (pc < codes->size()) {
       auto op = take_code().op;
@@ -112,6 +150,9 @@ public:
         break;
       case Instruction::PUT_STRING:
         put_string();
+        break;
+      case Instruction::PUT_LAMBDA:
+        put_lambda();
         break;
       case Instruction::LOAD_LOCAL:
         load_local();
@@ -330,6 +371,13 @@ private:
     stack_push(new String(*str));
   }
 
+  // put_lambda lambda_ptr
+  // [] -> [val]
+  void put_lambda() {
+    Func *lambda = take_code().funcval;
+    stack_push(lambda);
+  }
+
   // load_local index
   // [] -> [val]
   void load_local() {
@@ -380,6 +428,11 @@ private:
     auto r = stack_pop();
     sp = ep;
     stack_push(r);
+
+    if (prev_ep.empty()) {
+      pc = std::numeric_limits<int>::max();
+      return;
+    }
 
     ep = prev_ep.back();
     prev_ep.pop_back();
@@ -472,6 +525,7 @@ private:
   void stack_push(double x) { stack_push(Value(x)); }
   void stack_push(bool x) { stack_push(Value(x)); }
   void stack_push(Object *x) { stack_push(Value(x)); }
+  void stack_push(Func *x) { stack_push(Value(x)); }
   void stack_push(const Value &val) {
     reserve_stack();
     stack[sp++] = val;
@@ -515,11 +569,11 @@ public:
 
 private:
   int pc = 0; // program counter
-  Value *stack;
+  Value *stack = nullptr;
   int sp = 0; // stack pointer
   int ep = 0; // env pointer
   int stack_size = 1024;
-  Object *main_obj;
+  static Object *main_obj;
   std::vector<int> prev_ep;
   std::vector<std::pair<Codes *, int>> prev_code;
 };

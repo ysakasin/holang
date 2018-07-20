@@ -49,14 +49,6 @@ Node *Parser::read_toplevel() {
   return root;
 }
 
-Node *Parser::read_stmts() {
-  Node *node = read_stmt();
-  while (!(is_eof() || is_next(Keyword::BRACER))) {
-    node = new StmtsNode(node, read_stmt());
-  }
-  return node;
-}
-
 // ----- statement ----- //
 
 Node *Parser::read_stmt() {
@@ -259,6 +251,9 @@ Node *Parser::read_name_or_funccall(bool is_trailer) {
       read_exprs(args);
       take(Keyword::PARENR);
     }
+    if (is_next(Keyword::BRACEL)) {
+      args.push_back(read_block());
+    }
     return new FuncCallNode(*ident->sval, args, is_trailer);
   } else {
     if (is_trailer) {
@@ -271,10 +266,9 @@ Node *Parser::read_name_or_funccall(bool is_trailer) {
 }
 
 Node *Parser::read_block() {
-  take(Keyword::BRACEL);
-  Node *node = read_stmts();
-  take(Keyword::BRACER);
-  return node;
+  vector<string *> params;
+  Node *node = read_suite();
+  return new LambdaNode(params, node);
 }
 
 void Parser::read_exprs(vector<Node *> &args) {

@@ -3,9 +3,11 @@ set(holang_src
     object.cpp
     parser.cpp
     string.cpp
+    vm.cpp
     node/int_literal_node.cpp
     node/bool_literal_node.cpp
     node/string_literal_node.cpp
+    node/lambda_node.cpp
     node/ident_node.cpp
     node/assign_node.cpp
     node/binop_node.cpp

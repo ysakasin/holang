@@ -1,2 +1,2 @@
-a = 1.next(){ 1 + 2 }
+a = 1.next(){ println("This is invisible.") }
 println(a)
