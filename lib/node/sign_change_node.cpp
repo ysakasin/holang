@@ -10,5 +10,8 @@ void SignChangeNode::print(int offset) {
 }
 
 void SignChangeNode::code_gen(vector<Code> *codes) {
-  exit_by_unsupported("SignChangeNode#code_gen()");
+  body->code_gen(codes);
+  codes->push_back({.op = Instruction::PUT_INT});
+  codes->push_back({.ival = -1});
+  codes->push_back({.op = Instruction::MUL});
 }
