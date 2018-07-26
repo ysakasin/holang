@@ -124,6 +124,30 @@ void skip_blank() {
   unreadc();
 }
 
+void skip_comment() {
+  while (readc() != '\n') {
+  }
+  line++;
+  line_head = code_head;
+}
+
+void skip_blank_lines() {
+  char c = readc();
+  while (true) {
+    if (isblank(c)) {
+    } else if (c == '\n') {
+      line++;
+      line_head = code_head;
+    } else if (c == '#') {
+      skip_comment();
+    } else {
+      break;
+    }
+    c = readc();
+  }
+  unreadc();
+}
+
 Token *take_token() {
   skip_blank();
   char c = readc();
@@ -168,6 +192,7 @@ Token *take_token() {
   case '\n':
     line++;
     line_head = code_head;
+    skip_blank_lines();
     return make_newline();
   case '\0':
     return make_eof();
