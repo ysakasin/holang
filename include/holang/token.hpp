@@ -21,6 +21,10 @@ struct Token {
   };
   int line;
   int column;
+
+  Token(TokenType type) : type(type) {}
+  Token(TokenType type, std::string *sval) : type(type), sval(sval) {}
+  Token(TokenType type, Keyword keyword) : type(type), keyword(keyword) {}
 };
 
 static std::ostream &operator<<(std::ostream &out, const TokenType type) {

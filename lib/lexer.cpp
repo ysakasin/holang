@@ -47,11 +47,11 @@ void unreadc() { code_head--; }
 
 Token *make_number(const string &sval) {
   string *str = new string(sval);
-  return new Token({TokenType::NUMBER, .sval = str});
+  return new Token(TokenType::NUMBER, str);
 }
 
 Token *make_keyword(Keyword keyword) {
-  return new Token({TokenType::KEYWORD, .keyword = keyword});
+  return new Token(TokenType::KEYWORD, keyword);
 }
 
 Token *read_number(char c) {
@@ -68,7 +68,7 @@ Token *read_number(char c) {
 
 Token *make_ident(const string &ident) {
   string *sval = new string(ident);
-  return new Token({TokenType::IDENT, .sval = sval});
+  return new Token(TokenType::IDENT, sval);
 }
 
 Token *read_ident(char c) {
@@ -89,7 +89,7 @@ Token *read_ident(char c) {
 
 Token *make_str(const string &str) {
   string *sval = new string(str);
-  return new Token({TokenType::STRING, .sval = sval});
+  return new Token(TokenType::STRING, sval);
 }
 
 Token *read_str() {
@@ -104,9 +104,9 @@ Token *read_str() {
   return make_str(str);
 }
 
-Token *make_eof() { return new Token({TokenType::TEOF}); }
+Token *make_eof() { return new Token(TokenType::TEOF); }
 
-Token *make_newline() { return new Token({TokenType::NEWLINE}); }
+Token *make_newline() { return new Token(TokenType::NEWLINE); }
 
 void invalid(char c) {
   cerr << "unexpected character:" << c << endl;
