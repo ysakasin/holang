@@ -1,6 +1,7 @@
 123+23 * 3   - 4
 a = b = 30 + 2
 a + 1
+
 if false {
   a = 1
 } else if a < 1 {
@@ -9,12 +10,15 @@ if false {
 } else {
   a + b
 }
+
 println(a + b, a, b, false)
 println(true)
+
 func print_wrap(obj) {
   println(obj)
   if obj > 0 {
     print_wrap(obj - 1)
   }
 }
+
 print_wrap(10)

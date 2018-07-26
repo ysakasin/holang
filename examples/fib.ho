@@ -1,11 +1,9 @@
 func fib(n) {
-  if n < 1 {
-    0
-  } else if n < 2 {
-    1
+  if n < 2 {
+    return n
   } else {
-    fib(n-1) + fib(n-2)
+    return fib(n-1) + fib(n-2)
   }
 }
-a = fib(10)
-println(a)
+
+println(fib(10))
