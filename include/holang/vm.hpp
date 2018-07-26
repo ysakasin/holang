@@ -51,6 +51,7 @@ static Value next_func(Value *self, Value *, int) {
 }
 
 void call_func_argc_zero(Value *self, Func *func);
+void call_func_argc_one(Value *self, Func *func, Value *arg);
 
 static Value times_func(Value *self, Value *args, int argc) {
   if (argc != 1) {
@@ -67,7 +68,8 @@ static Value times_func(Value *self, Value *args, int argc) {
 
   Func *func = args[0].funcval;
   for (int i = 0; i < self->ival; i++) {
-    call_func_argc_zero(self, func);
+    Value val(i);
+    call_func_argc_one(self, func, &val);
   }
   return Value(true);
 }
@@ -82,6 +84,16 @@ public:
       stack = new Value[stack_size];
     stack_push(HolangVM::main_obj);
     sp += local_val_size;
+  }
+
+  HolangVM(Value *args, int local_val_size) {
+    init_main_obj();
+    if (stack == nullptr)
+      stack = new Value[stack_size];
+    stack_push(HolangVM::main_obj);
+    for (int i = 0; i < local_val_size; i++) {
+      stack_push(args[i]);
+    }
   }
 
   ~HolangVM() {

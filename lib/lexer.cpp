@@ -28,6 +28,7 @@ void holang::init_keywords() {
   keywords[")"] = Keyword::PARENR;
   keywords[","] = Keyword::COMMA;
   keywords["."] = Keyword::DOT;
+  keywords["|"] = Keyword::VERTICAL;
   keywords["func"] = Keyword::FUNC;
   keywords["class"] = Keyword::CLASS;
   keywords["import"] = Keyword::IMPORT;
@@ -109,7 +110,8 @@ Token *make_eof() { return new Token(TokenType::TEOF); }
 Token *make_newline() { return new Token(TokenType::NEWLINE); }
 
 void invalid(char c) {
-  cerr << "unexpected character:" << c << endl;
+  cerr << "unexpected character: " << c;
+  cerr << " at line " << line << ", col " << code_head - line_head << endl;
   exit(1);
 }
 
@@ -189,6 +191,8 @@ Token *take_token() {
     return make_keyword(Keyword::COMMA);
   case '.':
     return make_keyword(Keyword::DOT);
+  case '|':
+    return make_keyword(Keyword::VERTICAL);
   case '\n':
     line++;
     line_head = code_head;

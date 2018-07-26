@@ -14,3 +14,13 @@ void holang::call_func_argc_zero(Value *self, Func *func) {
     vm.eval();
   }
 }
+
+void holang::call_func_argc_one(Value *self, Func *func, Value *arg) {
+  if (func->type == FBUILTIN) {
+    func->native(self, arg, 1);
+  } else {
+    HolangVM vm(arg, 1);
+    vm.codes = &func->body;
+    vm.eval();
+  }
+}

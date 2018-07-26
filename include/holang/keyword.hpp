@@ -23,6 +23,7 @@ enum class Keyword {
   PARENR,
   COMMA,
   DOT,
+  VERTICAL,
   FUNC,
   CLASS,
   IMPORT,
@@ -68,6 +69,8 @@ static std::ostream &operator<<(std::ostream &out, const Keyword keyword) {
     return out << ",";
   case Keyword::DOT:
     return out << ".";
+  case Keyword::VERTICAL:
+    return out << "|";
   case Keyword::FUNC:
     return out << "func";
   case Keyword::CLASS:

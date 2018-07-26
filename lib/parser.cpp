@@ -266,9 +266,35 @@ Node *Parser::read_name_or_funccall(bool is_trailer) {
 }
 
 Node *Parser::read_block() {
+  Node *suite = nullptr;
   vector<string *> params;
-  Node *node = read_suite();
-  return new LambdaNode(params, node);
+
+  take(Keyword::BRACEL);
+  if (next_token(Keyword::VERTICAL)) {
+    read_params(&params);
+    take(Keyword::VERTICAL);
+  }
+
+  variable_table.next();
+  for (auto *str : params) {
+    variable_table.get(*str);
+  }
+
+  consume_newlines();
+  while (!is_next(Keyword::BRACER)) {
+    Node *node = read_stmt();
+    consume_newlines();
+
+    if (suite != nullptr) {
+      suite = new StmtsNode(suite, node);
+    } else {
+      suite = node;
+    }
+  }
+  take(Keyword::BRACER);
+
+  variable_table.prev();
+  return new LambdaNode(params, suite);
 }
 
 void Parser::read_exprs(vector<Node *> &args) {
