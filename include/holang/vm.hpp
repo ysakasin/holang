@@ -30,14 +30,13 @@ static Value print_func(Value *, Value *args, int argc) {
 }
 
 static Value println_func(Value *, Value *args, int argc) {
-  if (argc == 0) {
-    std::cout << std::endl;
-    return Value(true);
-  }
-
   for (int i = 0; i < argc; i++) {
-    std::cout << args[i].to_s() << std::endl;
+    if (i != 0) {
+      std::cout << " ";
+    }
+    std::cout << args[i].to_s();
   }
+  std::cout << std::endl;
   return Value(true);
 }
 
