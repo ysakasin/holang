@@ -1,6 +1,7 @@
 123+23 * 3   - 4
 a = b = 30 + 2
 a + 1
+# comment
 
 if false {
   a = 1
@@ -11,8 +12,11 @@ if false {
   a + b
 }
 
-println(a + b, a, b, false)
-println(true)
+# comment
+# comment
+
+println(a + b, a, b, false) #comment
+println(true) # comment
 
 func print_wrap(obj) {
   println(obj)

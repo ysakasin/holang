@@ -134,8 +134,8 @@ void skip_comment() {
 }
 
 void skip_blank_lines() {
-  char c = readc();
   while (true) {
+    char c = readc();
     if (isblank(c)) {
     } else if (c == '\n') {
       line++;
@@ -145,7 +145,6 @@ void skip_blank_lines() {
     } else {
       break;
     }
-    c = readc();
   }
   unreadc();
 }
@@ -196,6 +195,10 @@ Token *take_token() {
   case '\n':
     line++;
     line_head = code_head;
+    skip_blank_lines();
+    return make_newline();
+  case '#':
+    skip_comment();
     skip_blank_lines();
     return make_newline();
   case '\0':
