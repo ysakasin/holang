@@ -2,8 +2,8 @@
 
 #include "holang/code.hpp"
 #include "holang/instruction.hpp"
-#include "holang/keyword.hpp"
 #include "holang/object.hpp"
+#include "holang/token.hpp"
 #include <vector>
 
 namespace holang {
@@ -81,12 +81,12 @@ private:
 
 struct BinopNode : public Node {
 public:
-  BinopNode(Keyword op, Node *lhs, Node *rhs) : op(op), lhs(lhs), rhs(rhs) {}
+  BinopNode(TokenType op, Node *lhs, Node *rhs) : op(op), lhs(lhs), rhs(rhs) {}
   void print(int offset) override;
   void code_gen(std::vector<Code> *codes) override;
 
 private:
-  Keyword op;
+  TokenType op;
   Node *lhs, *rhs;
 };
 
@@ -195,12 +195,12 @@ private:
 
 struct RefFieldNode : public Node {
 public:
-  RefFieldNode(string *field) : field(field) {}
+  RefFieldNode(const string &field) : field(field) {}
   void print(int offset) override;
   void code_gen(vector<Code> *codes) override;
 
 private:
-  string *field;
+  string field;
 };
 
 struct ImportNode : public Node {

@@ -7,31 +7,16 @@
 using namespace std;
 using namespace holang;
 
-static map<string, Keyword> keywords;
+static map<string, TokenType> keywords;
 
 void holang::init_keywords() {
-  keywords["+"] = Keyword::ADD;
-  keywords["-"] = Keyword::SUB;
-  keywords["*"] = Keyword::MUL;
-  keywords["/"] = Keyword::DIV;
-  keywords["%"] = Keyword::MOD;
-  keywords["<"] = Keyword::LT;
-  keywords[">"] = Keyword::GT;
-  keywords["="] = Keyword::ASSIGN;
-  keywords["true"] = Keyword::TRUE;
-  keywords["false"] = Keyword::FALSE;
-  keywords["if"] = Keyword::IF;
-  keywords["else"] = Keyword::ELSE;
-  keywords["{"] = Keyword::BRACEL;
-  keywords["}"] = Keyword::BRACER;
-  keywords["("] = Keyword::PARENL;
-  keywords[")"] = Keyword::PARENR;
-  keywords[","] = Keyword::COMMA;
-  keywords["."] = Keyword::DOT;
-  keywords["|"] = Keyword::VERTICAL;
-  keywords["func"] = Keyword::FUNC;
-  keywords["class"] = Keyword::CLASS;
-  keywords["import"] = Keyword::IMPORT;
+  keywords["true"] = TokenType::True;
+  keywords["false"] = TokenType::False;
+  keywords["if"] = TokenType::If;
+  keywords["else"] = TokenType::Else;
+  keywords["func"] = TokenType::Func;
+  keywords["class"] = TokenType::Class;
+  keywords["import"] = TokenType::Import;
 }
 
 int code_head;
@@ -40,6 +25,15 @@ int line;
 int line_head;
 int t_head;
 
+bool is_next(char c) {
+  if (code_str[code_head] == c) {
+    code_head++;
+    return true;
+  } else {
+    return false;
+  }
+}
+
 char nextc() { return code_str[code_head]; }
 
 char readc() { return code_str[code_head++]; }
@@ -47,13 +41,11 @@ char readc() { return code_str[code_head++]; }
 void unreadc() { code_head--; }
 
 Token *make_number(const string &sval) {
-  string *str = new string(sval);
-  return new Token(TokenType::NUMBER, str);
+  uint64_t i = stoi(sval);
+  return new Token(i);
 }
 
-Token *make_keyword(Keyword keyword) {
-  return new Token(TokenType::KEYWORD, keyword);
-}
+Token *make_token(TokenType type) { return new Token(type); }
 
 Token *read_number(char c) {
   string sval(1, c);
@@ -68,8 +60,7 @@ Token *read_number(char c) {
 }
 
 Token *make_ident(const string &ident) {
-  string *sval = new string(ident);
-  return new Token(TokenType::IDENT, sval);
+  return new Token(TokenType::Ident, ident);
 }
 
 Token *read_ident(char c) {
@@ -80,7 +71,7 @@ Token *read_ident(char c) {
       unreadc();
       auto k = keywords.find(sval);
       if (k != keywords.end())
-        return make_keyword(k->second);
+        return make_token(k->second);
       else
         return make_ident(sval);
     }
@@ -88,10 +79,7 @@ Token *read_ident(char c) {
   }
 }
 
-Token *make_str(const string &str) {
-  string *sval = new string(str);
-  return new Token(TokenType::STRING, sval);
-}
+Token *make_str(const string &str) { return new Token(TokenType::String, str); }
 
 Token *read_str() {
   string str = "";
@@ -107,7 +95,7 @@ Token *read_str() {
 
 Token *make_eof() { return new Token(TokenType::TEOF); }
 
-Token *make_newline() { return new Token(TokenType::NEWLINE); }
+Token *make_newline() { return new Token(TokenType::NewLine); }
 
 void invalid(char c) {
   cerr << "unexpected character: " << c;
@@ -158,40 +146,87 @@ Token *take_token() {
   case '"':
     return read_str();
   case '+':
-    return make_keyword(Keyword::ADD);
-  case '-':
-    return make_keyword(Keyword::SUB);
-  case '*':
-    return make_keyword(Keyword::MUL);
-  case '/':
-    return make_keyword(Keyword::DIV);
-  case '%':
-    return make_keyword(Keyword::MOD);
-  case '<':
-    return make_keyword(Keyword::LT);
-  case '>':
-    return make_keyword(Keyword::GT);
-  case '=':
-    if (nextc() == '=') {
-      readc();
-      return make_keyword(Keyword::EQUAL);
+    if (is_next('+')) {
+      return make_token(TokenType::PlusPlus);
+    } else if (is_next('=')) {
+      return make_token(TokenType::PlusAssign);
     } else {
-      return make_keyword(Keyword::ASSIGN);
+      return make_token(TokenType::Plus);
+    }
+  case '-':
+    if (is_next('-')) {
+      return make_token(TokenType::MinusMinus);
+    } else if (is_next('=')) {
+      return make_token(TokenType::MinusAssign);
+    } else {
+      return make_token(TokenType::Minus);
+    }
+  case '*':
+    if (is_next('*')) {
+      invalid(c);
+    } else if (is_next('=')) {
+      return make_token(TokenType::MulAssign);
+    } else {
+      return make_token(TokenType::Mul);
+    }
+  case '/':
+    if (is_next('/')) {
+      invalid(c);
+    } else if (is_next('=')) {
+      return make_token(TokenType::DivAssign);
+    } else {
+      return make_token(TokenType::Div);
+    }
+  case '%':
+    return make_token(TokenType::Mod);
+  case '<':
+    if (is_next('=')) {
+      return make_token(TokenType::LessEqualThan);
+    } else {
+      return make_token(TokenType::LessThan);
+    }
+  case '>':
+    if (is_next('=')) {
+      return make_token(TokenType::GreaterEqualThan);
+    } else {
+      return make_token(TokenType::GreaterThan);
+    }
+  case '=':
+    if (is_next('=')) {
+      return make_token(TokenType::Equal);
+    } else {
+      return make_token(TokenType::Assign);
+    }
+  case '!':
+    if (is_next('=')) {
+      return make_token(TokenType::NotEqual);
+    } else {
+      return make_token(TokenType::Not);
     }
   case '(':
-    return make_keyword(Keyword::PARENL);
+    return make_token(TokenType::ParenL);
   case ')':
-    return make_keyword(Keyword::PARENR);
+    return make_token(TokenType::ParenR);
   case '{':
-    return make_keyword(Keyword::BRACEL);
+    return make_token(TokenType::BraseL);
   case '}':
-    return make_keyword(Keyword::BRACER);
+    return make_token(TokenType::BraseR);
   case ',':
-    return make_keyword(Keyword::COMMA);
+    return make_token(TokenType::Comma);
   case '.':
-    return make_keyword(Keyword::DOT);
+    return make_token(TokenType::Dot);
   case '|':
-    return make_keyword(Keyword::VERTICAL);
+    if (is_next('|')) {
+      return make_token(TokenType::OR);
+    } else {
+      return make_token(TokenType::VertialBar);
+    }
+  case '&':
+    if (is_next('&')) {
+      return make_token(TokenType::AND);
+    } else {
+      return make_token(TokenType::Anpersand);
+    }
   case '\n':
     line++;
     line_head = code_head;

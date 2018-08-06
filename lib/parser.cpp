@@ -19,15 +19,8 @@ void Parser::take(TokenType type) {
   }
 }
 
-void Parser::take(Keyword keyword) {
-  Token *token = get();
-  if (token->type != TokenType::KEYWORD || token->keyword != keyword) {
-    exit_by_unexpected(keyword, token);
-  }
-}
-
 void Parser::consume_newlines() {
-  while (next_token(TokenType::NEWLINE)) {
+  while (next_token(TokenType::NewLine)) {
   }
 }
 
@@ -53,15 +46,15 @@ Node *Parser::read_toplevel() {
 
 Node *Parser::read_stmt() {
   Node *node;
-  if (is_next(Keyword::IF)) {
+  if (is_next(TokenType::If)) {
     node = read_if();
-  } else if (is_next(Keyword::FUNC)) {
+  } else if (is_next(TokenType::Func)) {
     node = read_funcdef();
-  } else if (is_next(Keyword::CLASS)) {
+  } else if (is_next(TokenType::Class)) {
     node = read_klassdef();
-  } else if (is_next(Keyword::IMPORT)) {
+  } else if (is_next(TokenType::Import)) {
     node = read_import();
-  } else if (is_next(Keyword::BRACEL)) {
+  } else if (is_next(TokenType::BraseL)) {
     node = read_suite();
   } else {
     node = read_expr();
@@ -70,37 +63,37 @@ Node *Parser::read_stmt() {
 }
 
 Node *Parser::read_if() {
-  take(Keyword::IF);
+  take(TokenType::If);
   Node *node = read_expr();
   Node *then = read_suite();
-  Node *els = next_token(Keyword::ELSE) ? read_stmt() : nullptr;
+  Node *els = next_token(TokenType::Else) ? read_stmt() : nullptr;
   return new IfNode(node, then, els);
 }
 
 Node *Parser::read_funcdef() {
-  take(Keyword::FUNC);
+  take(TokenType::Func);
   Token *ident = get_ident();
   variable_table.next();
 
-  take(Keyword::PARENL);
+  take(TokenType::ParenL);
   vector<string *> params;
   read_params(&params);
-  take(Keyword::PARENR);
+  take(TokenType::ParenR);
 
   Node *body = read_suite();
   variable_table.prev();
-  return new FuncDefNode(*ident->sval, params, body);
+  return new FuncDefNode(ident->str, params, body);
 }
 
 Node *Parser::read_klassdef() {
-  take(Keyword::CLASS);
+  take(TokenType::Class);
   Token *ident = get_ident();
   Node *body = read_suite();
-  return new KlassDefNode(*ident->sval, body);
+  return new KlassDefNode(ident->str, body);
 }
 
 Node *Parser::read_import() {
-  take(Keyword::IMPORT);
+  take(TokenType::Import);
   Node *node = read_expr();
   return new ImportNode(node);
 }
@@ -108,9 +101,9 @@ Node *Parser::read_import() {
 Node *Parser::read_suite() {
   Node *suite = nullptr;
 
-  take(Keyword::BRACEL);
+  take(TokenType::BraseL);
   consume_newlines();
-  while (!is_next(Keyword::BRACER)) {
+  while (!is_next(TokenType::BraseR)) {
     Node *node = read_stmt();
     consume_newlines();
 
@@ -120,7 +113,7 @@ Node *Parser::read_suite() {
       suite = node;
     }
   }
-  take(Keyword::BRACER);
+  take(TokenType::BraseR);
   return suite;
 }
 
@@ -130,33 +123,33 @@ Node *Parser::read_expr() { return read_assignment_expr(); }
 
 Node *Parser::read_assignment_expr() {
   Token *token = get();
-  if (token->type == TokenType::IDENT && next_token(Keyword::ASSIGN)) {
-    int index = variable_table.get(*token->sval);
-    return new AssignNode(new IdentNode(*token->sval, index),
+  if (token->type == TokenType::Ident && next_token(TokenType::Assign)) {
+    int index = variable_table.get(token->str);
+    return new AssignNode(new IdentNode(token->str, index),
                           read_assignment_expr());
   }
   unget();
   return read_equal_expr();
 }
 
-Node *ast_binop(Keyword op, Node *lhs, Node *rhs) {
+Node *ast_binop(TokenType op, Node *lhs, Node *rhs) {
   return new BinopNode(op, lhs, rhs);
 }
 
 Node *Parser::read_equal_expr() {
   Node *node = read_comp_expr();
-  if (next_token(Keyword::EQUAL))
-    return ast_binop(Keyword::EQUAL, node, read_comp_expr());
+  if (next_token(TokenType::Equal))
+    return ast_binop(TokenType::Equal, node, read_comp_expr());
   else
     return node;
 }
 
 Node *Parser::read_comp_expr() {
   Node *node = read_additive_expr();
-  if (next_token(Keyword::LT))
-    return ast_binop(Keyword::LT, node, read_additive_expr());
-  else if (next_token(Keyword::GT))
-    return ast_binop(Keyword::GT, node, read_additive_expr());
+  if (next_token(TokenType::LessThan))
+    return ast_binop(TokenType::LessThan, node, read_additive_expr());
+  else if (next_token(TokenType::GreaterThan))
+    return ast_binop(TokenType::GreaterThan, node, read_additive_expr());
   else
     return node;
 }
@@ -164,12 +157,12 @@ Node *Parser::read_comp_expr() {
 Node *Parser::read_multiplicative_expr() {
   Node *node = read_factor();
   while (true) {
-    if (next_token(Keyword::MUL))
-      node = ast_binop(Keyword::MUL, node, read_factor());
-    else if (next_token(Keyword::DIV))
-      node = ast_binop(Keyword::DIV, node, read_factor());
-    else if (next_token(Keyword::MOD))
-      node = ast_binop(Keyword::MOD, node, read_factor());
+    if (next_token(TokenType::Mul))
+      node = ast_binop(TokenType::Mul, node, read_factor());
+    else if (next_token(TokenType::Div))
+      node = ast_binop(TokenType::Div, node, read_factor());
+    else if (next_token(TokenType::Mod))
+      node = ast_binop(TokenType::Mod, node, read_factor());
     else
       return node;
   }
@@ -178,17 +171,17 @@ Node *Parser::read_multiplicative_expr() {
 Node *Parser::read_additive_expr() {
   Node *node = read_multiplicative_expr();
   while (true) {
-    if (next_token(Keyword::ADD))
-      node = ast_binop(Keyword::ADD, node, read_multiplicative_expr());
-    else if (next_token(Keyword::SUB))
-      node = ast_binop(Keyword::SUB, node, read_multiplicative_expr());
+    if (next_token(TokenType::Plus))
+      node = ast_binop(TokenType::Plus, node, read_multiplicative_expr());
+    else if (next_token(TokenType::Minus))
+      node = ast_binop(TokenType::Minus, node, read_multiplicative_expr());
     else
       return node;
   }
 }
 
 Node *Parser::read_factor() {
-  if (next_token(Keyword::SUB)) {
+  if (next_token(TokenType::Minus)) {
     return new SignChangeNode(read_prime_expr());
   } else {
     return read_prime_expr();
@@ -208,7 +201,7 @@ Node *Parser::read_prime_expr() {
 }
 
 Node *Parser::read_traier() {
-  if (next_token(Keyword::DOT)) {
+  if (next_token(TokenType::Dot)) {
     return read_name_or_funccall(true);
   }
   return nullptr;
@@ -217,15 +210,15 @@ Node *Parser::read_traier() {
 // ----- prime ----- //
 
 Node *Parser::read_prime() {
-  if (is_next(TokenType::NUMBER)) {
+  if (is_next(TokenType::Integer)) {
     return read_number();
-  } else if (is_next(TokenType::IDENT)) {
+  } else if (is_next(TokenType::Ident)) {
     return read_name_or_funccall(false);
-  } else if (next_token(Keyword::TRUE)) {
+  } else if (next_token(TokenType::True)) {
     return new BoolLiteralNode(true);
-  } else if (next_token(Keyword::FALSE)) {
+  } else if (next_token(TokenType::False)) {
     return new BoolLiteralNode(false);
-  } else if (is_next(TokenType::STRING)) {
+  } else if (is_next(TokenType::String)) {
     return read_string();
   }
   exit_by_unexpected("something prime", get());
@@ -234,33 +227,32 @@ Node *Parser::read_prime() {
 
 Node *Parser::read_number() {
   Token *token = get();
-  int val = stoi(*token->sval);
-  return new IntLiteralNode(val);
+  return new IntLiteralNode(token->i);
 }
 
 Node *Parser::read_string() {
   Token *token = get();
-  return new StringLiteralNode(*token->sval);
+  return new StringLiteralNode(token->str);
 }
 
 Node *Parser::read_name_or_funccall(bool is_trailer) {
   Token *ident = get();
-  if (next_token(Keyword::PARENL)) {
+  if (next_token(TokenType::ParenL)) {
     vector<Node *> args;
-    if (!next_token(Keyword::PARENR)) {
+    if (!next_token(TokenType::ParenR)) {
       read_exprs(args);
-      take(Keyword::PARENR);
+      take(TokenType::ParenR);
     }
-    if (is_next(Keyword::BRACEL)) {
+    if (is_next(TokenType::BraseL)) {
       args.push_back(read_block());
     }
-    return new FuncCallNode(*ident->sval, args, is_trailer);
+    return new FuncCallNode(ident->str, args, is_trailer);
   } else {
     if (is_trailer) {
-      return new RefFieldNode(ident->sval);
+      return new RefFieldNode(ident->str);
     } else {
-      int index = variable_table.get(*ident->sval);
-      return new IdentNode(*ident->sval, index);
+      int index = variable_table.get(ident->str);
+      return new IdentNode(ident->str, index);
     }
   }
 }
@@ -269,10 +261,10 @@ Node *Parser::read_block() {
   Node *suite = nullptr;
   vector<string *> params;
 
-  take(Keyword::BRACEL);
-  if (next_token(Keyword::VERTICAL)) {
+  take(TokenType::BraseL);
+  if (next_token(TokenType::VertialBar)) {
     read_params(&params);
-    take(Keyword::VERTICAL);
+    take(TokenType::VertialBar);
   }
 
   variable_table.next();
@@ -281,7 +273,7 @@ Node *Parser::read_block() {
   }
 
   consume_newlines();
-  while (!is_next(Keyword::BRACER)) {
+  while (!is_next(TokenType::BraseR)) {
     Node *node = read_stmt();
     consume_newlines();
 
@@ -291,7 +283,7 @@ Node *Parser::read_block() {
       suite = node;
     }
   }
-  take(Keyword::BRACER);
+  take(TokenType::BraseR);
 
   variable_table.prev();
   return new LambdaNode(params, suite);
@@ -299,33 +291,33 @@ Node *Parser::read_block() {
 
 void Parser::read_exprs(vector<Node *> &args) {
   args.push_back(read_expr());
-  while (next_token(Keyword::COMMA)) {
+  while (next_token(TokenType::Comma)) {
     args.push_back(read_expr());
   }
 }
 
 void Parser::read_arglist(vector<Node *> *arglist) {
-  if (is_next(Keyword::PARENR)) {
+  if (is_next(TokenType::ParenR)) {
     return;
   }
 
   Node *arg = read_expr();
   arglist->emplace_back(arg);
-  while (next_token(Keyword::COMMA)) {
+  while (next_token(TokenType::Comma)) {
     arg = read_expr();
     arglist->emplace_back(arg);
   }
 }
 
 void Parser::read_params(vector<string *> *params) {
-  if (!is_next(TokenType::IDENT)) {
+  if (!is_next(TokenType::Ident)) {
     return;
   }
 
   Token *token = get_ident();
-  params->emplace_back(token->sval);
-  while (next_token(Keyword::COMMA)) {
+  params->emplace_back(&token->str);
+  while (next_token(TokenType::Comma)) {
     token = get_ident();
-    params->emplace_back(token->sval);
+    params->emplace_back(&token->str);
   }
 }

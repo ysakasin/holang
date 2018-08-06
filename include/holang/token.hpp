@@ -1,56 +1,186 @@
 #pragma once
 
-#include "keyword.hpp"
 #include <ostream>
 
 namespace holang {
 enum class TokenType {
-  NUMBER,
-  STRING,
-  KEYWORD,
-  IDENT,
-  NEWLINE,
-  TEOF, // EOF is defined by stdio.h
+  // literal
+  Integer,
+  Double,
+  String,
+  Ident,
+  True,
+  False,
+
+  // operator
+  Plus,             // +
+  Minus,            // -
+  Mul,              // *
+  Div,              // '/'
+  Mod,              // %
+  LessThan,         // <
+  GreaterThan,      // >
+  Equal,            // ==
+  Assign,           // =
+  NotEqual,         // !=
+  Not,              // !
+  PlusPlus,         // ++
+  MinusMinus,       // --
+  LessEqualThan,    // <=
+  GreaterEqualThan, // >=
+  PlusAssign,       // +=
+  MinusAssign,      // -=
+  MulAssign,        // *=
+  DivAssign,        // /=
+  AND,              // &&
+  OR,               // ||
+
+  // keyword
+  If,
+  Else,
+  Func,
+  Class,
+  Import,
+
+  // delimiter
+  ParenL,     // (
+  ParenR,     // )
+  BraseL,     // {
+  BraseR,     // }
+  Comma,      // ,
+  Dot,        // .
+  VertialBar, // |
+  Anpersand,  // &
+  NewLine,    // \n
+  TEOF,       // EOF is defined by stdio.h
 };
 
 struct Token {
   TokenType type;
   union {
-    std::string *sval;
-    Keyword keyword;
+    uint64_t i;
+    double d;
+    std::string str;
   };
   int line;
   int column;
 
   Token(TokenType type) : type(type) {}
-  Token(TokenType type, std::string *sval) : type(type), sval(sval) {}
-  Token(TokenType type, Keyword keyword) : type(type), keyword(keyword) {}
+  Token(uint64_t i) : type(TokenType::Integer), i(i) {}
+  Token(double d) : type(TokenType::Double), d(d) {}
+  Token(TokenType type, const std::string &str) : type(type), str(str) {}
+
+  ~Token() {
+    if (type == TokenType::String || type == TokenType::Ident) {
+      str.~basic_string();
+    }
+  }
 };
 
 static std::ostream &operator<<(std::ostream &out, const TokenType type) {
   switch (type) {
-  case TokenType::NUMBER:
-    return out << "NUMBER";
-  case TokenType::STRING:
-    return out << "STRING";
-  case TokenType::KEYWORD:
-    return out << "KEYWORD";
-  case TokenType::IDENT:
-    return out << "IDENT";
-  case TokenType::NEWLINE:
-    return out << "NEWLINE";
+  // literal
+  case TokenType::Integer:
+    return out << "Integer";
+  case TokenType::Double:
+    return out << "Double";
+  case TokenType::String:
+    return out << "String";
+  case TokenType::Ident:
+    return out << "Ident";
+  case TokenType::True:
+    return out << "True";
+  case TokenType::False:
+    return out << "False";
+
+  // operator
+  case TokenType::Plus:
+    return out << "Plus";
+  case TokenType::Minus:
+    return out << "Minus";
+  case TokenType::Mul:
+    return out << "Mul";
+  case TokenType::Div:
+    return out << "Div";
+  case TokenType::Mod:
+    return out << "Mod";
+  case TokenType::LessThan:
+    return out << "LessThan";
+  case TokenType::GreaterThan:
+    return out << "GreaterThan";
+  case TokenType::Equal:
+    return out << "Equal";
+  case TokenType::Assign:
+    return out << "Assign";
+  case TokenType::NotEqual:
+    return out << "NotEqual";
+  case TokenType::Not:
+    return out << "Not";
+  case TokenType::PlusPlus:
+    return out << "PlusPlus";
+  case TokenType::MinusMinus:
+    return out << "MinusMinus";
+  case TokenType::LessEqualThan:
+    return out << "LessEqualThan";
+  case TokenType::GreaterEqualThan:
+    return out << "GreaterEqualThan";
+  case TokenType::PlusAssign:
+    return out << "PlusAssign";
+  case TokenType::MinusAssign:
+    return out << "MinusAssign";
+  case TokenType::MulAssign:
+    return out << "MulAssign";
+  case TokenType::DivAssign:
+    return out << "DivAssign";
+  case TokenType::AND:
+    return out << "AND";
+  case TokenType::OR:
+    return out << "OR";
+
+  // keyword
+  case TokenType::If:
+    return out << "If";
+  case TokenType::Else:
+    return out << "Else";
+  case TokenType::Func:
+    return out << "Func";
+  case TokenType::Class:
+    return out << "Class";
+  case TokenType::Import:
+    return out << "Import";
+
+  // delimitor
+  case TokenType::ParenL:
+    return out << "ParenL";
+  case TokenType::ParenR:
+    return out << "ParenR";
+  case TokenType::BraseL:
+    return out << "BraseL";
+  case TokenType::BraseR:
+    return out << "BraseR";
+  case TokenType::Comma:
+    return out << "Comma";
+  case TokenType::Dot:
+    return out << "Dot";
+  case TokenType::VertialBar:
+    return out << "VertialBar";
+  case TokenType::Anpersand:
+    return out << "Anpersand";
+  case TokenType::NewLine:
+    return out << "NewLine";
   case TokenType::TEOF:
     return out << "EOF";
   }
 }
 
 static std::ostream &operator<<(std::ostream &out, const Token *token) {
-  if (token->type == TokenType::KEYWORD) {
-    return out << token->type << " " << token->keyword;
-  } else if (token->type == TokenType::IDENT) {
-    return out << token->type << " " << *token->sval;
-  } else if (token->type == TokenType::NUMBER) {
-    return out << token->type << " " << *token->sval;
+  if (token->type == TokenType::Integer) {
+    return out << token->type << " " << token->i;
+  } else if (token->type == TokenType::Double) {
+    return out << token->type << " " << token->d;
+  } else if (token->type == TokenType::Ident ||
+             token->type == TokenType::String) {
+    return out << token->type << " " << token->str;
   } else {
     return out << token->type;
   }

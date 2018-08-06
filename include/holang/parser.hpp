@@ -17,8 +17,8 @@ private:
   Token *get() { return token_chain[head++]; }
   Token *get_ident() {
     Token *token = get();
-    if (token->type != TokenType::IDENT) {
-      exit_by_unexpected(TokenType::IDENT, token);
+    if (token->type != TokenType::Ident) {
+      exit_by_unexpected(TokenType::Ident, token);
     }
     return token;
   }
@@ -26,27 +26,13 @@ private:
 
 private:
   void take(TokenType type);
-  void take(Keyword keyword);
   void consume_newlines();
 
 private:
   bool is_next(TokenType type, int offset = 0) {
     return token_chain[head - offset]->type == type;
   }
-  bool is_next(Keyword keyword, int offset = 0) {
-    Token *token = token_chain[head - offset];
-    return token->type == TokenType::KEYWORD && token->keyword == keyword;
-  }
   bool is_eof() { return is_next(TokenType::TEOF); }
-  bool next_token(Keyword keyword) {
-    Token *token = get();
-    if (token->type == TokenType::KEYWORD && token->keyword == keyword) {
-      return true;
-    }
-    unget();
-    return false;
-  }
-
   bool next_token(TokenType type) {
     Token *token = get();
     if (token->type == type) {
@@ -87,14 +73,6 @@ private:
 
 private:
   void exit_by_unexpected(TokenType expect, Token *actual) {
-    std::cerr << "unexpected token: ";
-    std::cerr << "line " << actual->line << ", column " << actual->column
-              << std::endl;
-    std::cerr << "  expect: " << expect << std::endl;
-    std::cerr << "  actual: " << actual << std::endl;
-    exit(1);
-  }
-  void exit_by_unexpected(Keyword expect, Token *actual) {
     std::cerr << "unexpected token: ";
     std::cerr << "line " << actual->line << ", column " << actual->column
               << std::endl;

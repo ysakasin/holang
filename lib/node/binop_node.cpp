@@ -10,23 +10,23 @@ void BinopNode::print(int offset) {
   rhs->print(offset + 1);
 }
 
-Instruction to_opcode(Keyword c) {
+Instruction to_opcode(TokenType c) {
   switch (c) {
-  case Keyword::ADD:
+  case TokenType::Plus:
     return Instruction::ADD;
-  case Keyword::SUB:
+  case TokenType::Minus:
     return Instruction::SUB;
-  case Keyword::MUL:
+  case TokenType::Mul:
     return Instruction::MUL;
-  case Keyword::DIV:
+  case TokenType::Div:
     return Instruction::DIV;
-  case Keyword::MOD:
+  case TokenType::Mod:
     return Instruction::MOD;
-  case Keyword::LT:
+  case TokenType::LessThan:
     return Instruction::LESS;
-  case Keyword::GT:
+  case TokenType::GreaterThan:
     return Instruction::GREATER;
-  case Keyword::EQUAL:
+  case TokenType::Equal:
     return Instruction::EQUAL;
   default:
     cerr << "err: to_opecode" << endl;
