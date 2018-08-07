@@ -211,6 +211,10 @@ Token *take_token() {
     return make_token(TokenType::BraseL);
   case '}':
     return make_token(TokenType::BraseR);
+  case '[':
+    return make_token(TokenType::BracketL);
+  case ']':
+    return make_token(TokenType::BracketR);
   case ',':
     return make_token(TokenType::Comma);
   case '.':

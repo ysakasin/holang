@@ -47,6 +47,8 @@ enum class TokenType {
   ParenR,     // )
   BraseL,     // {
   BraseR,     // }
+  BracketL,   // [
+  BracketR,   // ]
   Comma,      // ,
   Dot,        // .
   VertialBar, // |
@@ -158,6 +160,10 @@ static std::ostream &operator<<(std::ostream &out, const TokenType type) {
     return out << "BraseL";
   case TokenType::BraseR:
     return out << "BraseR";
+  case TokenType::BracketL:
+    return out << "BracketL";
+  case TokenType::BracketR:
+    return out << "BracketR";
   case TokenType::Comma:
     return out << "Comma";
   case TokenType::Dot:
