@@ -40,22 +40,50 @@ char readc() { return code_str[code_head++]; }
 
 void unreadc() { code_head--; }
 
-Token *make_number(const string &sval) {
+Token *make_integer(const string &sval) {
   uint64_t i = stoi(sval);
   return new Token(i);
+}
+
+Token *make_double(const string &sval) {
+  double d = stod(sval);
+  return new Token(d);
 }
 
 Token *make_token(TokenType type) { return new Token(type); }
 
 Token *read_number(char c) {
   string sval(1, c);
+  bool has_dot = false;
   while (true) {
     char c = readc();
-    if (!isdigit(c)) {
+    if (c == '.') {
+      if (has_dot) {
+        unreadc();
+        break;
+      }
+      char nc = readc();
+      if (isdigit(nc)) {
+        sval.push_back('.');
+        sval.push_back(nc);
+        has_dot = true;
+      } else {
+        unreadc();
+        unreadc();
+        break;
+      }
+    } else if (isdigit(c)) {
+      sval.push_back(c);
+    } else {
       unreadc();
-      return make_number(sval);
+      break;
     }
-    sval.push_back(c);
+  }
+
+  if (has_dot) {
+    return make_double(sval);
+  } else {
+    return make_integer(sval);
   }
 }
 
