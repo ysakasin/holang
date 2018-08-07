@@ -9,6 +9,7 @@ using namespace holang;
 
 int main(int argc, char *argv[]) {
   bool show_ast = false;
+  bool show_token = false;
   if (argc < 2) {
     cerr << "require source code" << endl;
     return -1;
@@ -18,6 +19,8 @@ int main(int argc, char *argv[]) {
     string opt(argv[2]);
     if (opt == "--ast") {
       show_ast = true;
+    } else if (opt == "--token") {
+      show_token = true;
     }
   }
 
@@ -35,6 +38,13 @@ int main(int argc, char *argv[]) {
 
   vector<Token *> token_chain;
   lex(code, token_chain);
+
+  if (show_token) {
+    for (auto *token : token_chain) {
+      cout << token << endl;
+    }
+    return 0;
+  }
 
   holang::Parser parser(token_chain);
   Node *root = parser.parse();
