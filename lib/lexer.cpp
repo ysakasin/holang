@@ -1,4 +1,4 @@
-#include "holang.hpp"
+#include "holang/lexer.hpp"
 #include <iostream>
 #include <map>
 #include <string>
@@ -7,9 +7,13 @@
 using namespace std;
 using namespace holang;
 
-static map<string, TokenType> keywords;
+map<string, TokenType> Lexer::keywords;
 
-void holang::init_keywords() {
+void Lexer::init_keywords() {
+  if (!Lexer::keywords.empty()) {
+    return;
+  }
+
   keywords["true"] = TokenType::True;
   keywords["false"] = TokenType::False;
   keywords["if"] = TokenType::If;
@@ -19,26 +23,20 @@ void holang::init_keywords() {
   keywords["import"] = TokenType::Import;
 }
 
-int code_head;
-string code_str;
-int line;
-int line_head;
-int t_head;
-
-bool is_next(char c) {
-  if (code_str[code_head] == c) {
-    code_head++;
+bool Lexer::is_next(char c) {
+  if (code_str[head] == c) {
+    head++;
     return true;
   } else {
     return false;
   }
 }
 
-char nextc() { return code_str[code_head]; }
+char Lexer::nextc() const { return code_str[head]; }
 
-char readc() { return code_str[code_head++]; }
+char Lexer::readc() { return code_str[head++]; }
 
-void unreadc() { code_head--; }
+void Lexer::unreadc() { head--; }
 
 Token *make_integer(const string &sval) {
   uint64_t i = stoi(sval);
@@ -52,7 +50,7 @@ Token *make_double(const string &sval) {
 
 Token *make_token(TokenType type) { return new Token(type); }
 
-Token *read_number(char c) {
+Token *Lexer::read_number(char c) {
   string sval(1, c);
   bool has_dot = false;
   while (true) {
@@ -91,7 +89,7 @@ Token *make_ident(const string &ident) {
   return new Token(TokenType::Ident, ident);
 }
 
-Token *read_ident(char c) {
+Token *Lexer::read_ident(char c) {
   string sval(1, c);
   while (true) {
     char c = readc();
@@ -109,7 +107,7 @@ Token *read_ident(char c) {
 
 Token *make_str(const string &str) { return new Token(TokenType::String, str); }
 
-Token *read_str() {
+Token *Lexer::read_str() {
   string str = "";
   while (true) {
     char c = readc();
@@ -125,39 +123,38 @@ Token *make_eof() { return new Token(TokenType::TEOF); }
 
 Token *make_newline() { return new Token(TokenType::NewLine); }
 
-void invalid(char c) {
+void Lexer::invalid(char c) const {
   cerr << "unexpected character: " << c;
-  cerr << " at line " << line << ", col " << code_head - line_head << endl;
+  cerr << " at line " << line << ", col " << head - line_begin_at << endl;
   exit(1);
 }
 
 bool isblank(char c) { return c == ' ' || c == '\t'; }
 
-void skip_blank() {
+void Lexer::skip_blank() {
   char c = readc();
   while (isblank(c)) {
-    t_head++;
     c = readc();
   }
   unreadc();
 }
 
-void skip_comment() {
+void Lexer::skip_to_newline() {
   while (readc() != '\n') {
   }
   line++;
-  line_head = code_head;
+  line_begin_at = head;
 }
 
-void skip_blank_lines() {
+void Lexer::skip_blank_lines() {
   while (true) {
     char c = readc();
     if (isblank(c)) {
     } else if (c == '\n') {
       line++;
-      line_head = code_head;
+      line_begin_at = head;
     } else if (c == '#') {
-      skip_comment();
+      skip_to_newline();
     } else {
       break;
     }
@@ -165,8 +162,10 @@ void skip_blank_lines() {
   unreadc();
 }
 
-Token *take_token() {
+Token *Lexer::take_token() {
   skip_blank();
+
+  token_begin_at = head;
   char c = readc();
   switch (c) {
   case '0' ... '9':
@@ -261,11 +260,11 @@ Token *take_token() {
     }
   case '\n':
     line++;
-    line_head = code_head;
+    line_begin_at = head;
     skip_blank_lines();
     return make_newline();
   case '#':
-    skip_comment();
+    skip_to_newline();
     skip_blank_lines();
     return make_newline();
   case '\0':
@@ -280,18 +279,16 @@ Token *take_token() {
   }
 }
 
-int holang::lex(const string &code, vector<Token *> &token_chain) {
+void Lexer::lex(vector<Token *> &token_chain) {
   line = 1;
-  code_str = code;
-  code_head = 0;
-  while (code_head < code.length() + 1) {
+  head = 0;
+
+  while (head <= code_str.size()) {
     Token *token = take_token();
     token->line = line;
-    token->column = t_head - line_head + 1;
+    token->column = token_begin_at - line_begin_at + 1;
     token_chain.push_back(token);
-    t_head = code_head;
   }
-  return 0;
 }
 
 void print_token(const Token *token) {

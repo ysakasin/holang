@@ -1,4 +1,5 @@
 #include "holang.hpp"
+#include "holang/lexer.hpp"
 #include "holang/parser.hpp"
 #include "holang/vm.hpp"
 #include <fstream>
@@ -34,10 +35,9 @@ int main(int argc, char *argv[]) {
   istreambuf_iterator<char> last;
   string code(it, last);
 
-  init_keywords();
-
   vector<Token *> token_chain;
-  lex(code, token_chain);
+  holang::Lexer lexer(code);
+  lexer.lex(token_chain);
 
   if (show_token) {
     for (auto *token : token_chain) {

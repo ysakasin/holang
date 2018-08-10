@@ -1,6 +1,7 @@
 #pragma once
 
 #include "holang.hpp"
+#include "holang/lexer.hpp"
 #include "holang/parser.hpp"
 #include "holang/string.hpp"
 
@@ -511,7 +512,8 @@ private:
     std::string source_code(it, last);
 
     std::vector<Token *> token_chain;
-    lex(source_code, token_chain);
+    holang::Lexer lexer(source_code);
+    lexer.lex(token_chain);
 
     holang::Parser parser(token_chain);
     Node *root = parser.parse();
