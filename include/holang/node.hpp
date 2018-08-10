@@ -134,6 +134,16 @@ private:
   Node *cond, *then, *els;
 };
 
+struct WhileNode : public Node {
+public:
+  WhileNode(Node *cond, Node *body) : cond(cond), body(body) {}
+  void print(int offset) override;
+  void code_gen(vector<Code> *codes) override;
+
+private:
+  Node *cond, *body;
+};
+
 struct FuncCallNode : public Node {
 public:
   FuncCallNode(const string &name, const vector<Node *> &args, bool is_trailer)

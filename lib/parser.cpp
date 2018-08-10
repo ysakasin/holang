@@ -54,6 +54,8 @@ Node *Parser::read_stmt() {
     node = read_klassdef();
   } else if (is_next(TokenType::Import)) {
     node = read_import();
+  } else if (is_next(TokenType::While)) {
+    node = read_while();
   } else if (is_next(TokenType::BraseL)) {
     node = read_suite();
   } else {
@@ -96,6 +98,13 @@ Node *Parser::read_import() {
   take(TokenType::Import);
   Node *node = read_expr();
   return new ImportNode(node);
+}
+
+Node *Parser::read_while() {
+  take(TokenType::While);
+  Node *node = read_expr();
+  Node *body = read_suite();
+  return new WhileNode(node, body);
 }
 
 Node *Parser::read_suite() {

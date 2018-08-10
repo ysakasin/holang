@@ -21,6 +21,7 @@ set(holang_src
     node/prime_expr_node.cpp
     node/ref_field_node.cpp
     node/import_node.cpp
+    node/while_node.cpp
 )
 
 add_library(holang STATIC ${holang_src})

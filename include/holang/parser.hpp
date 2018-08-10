@@ -50,6 +50,7 @@ private:
   Node *read_funcdef();
   Node *read_klassdef();
   Node *read_import();
+  Node *read_while();
   Node *read_suite();
 
   Node *read_expr();
