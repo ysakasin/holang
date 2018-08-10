@@ -180,6 +180,10 @@ static std::ostream &operator<<(std::ostream &out, const TokenType type) {
 }
 
 static std::ostream &operator<<(std::ostream &out, const Token *token) {
+  char pos[15];
+  snprintf(pos, 15, "(%3d,%3d)", token->line, token->column);
+  out << pos << ' ';
+
   if (token->type == TokenType::Integer) {
     return out << token->type << " " << token->i;
   } else if (token->type == TokenType::Double) {

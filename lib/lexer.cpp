@@ -290,14 +290,3 @@ void Lexer::lex(vector<Token *> &token_chain) {
     token_chain.push_back(token);
   }
 }
-
-void print_token(const Token *token) {
-  cout << token << "\t ";
-  cout << "(" << token->line << "," << token->column << ")" << endl;
-}
-
-void print_token_chain(const vector<Token *> &token_chain) {
-  for (const Token *token : token_chain) {
-    ::print_token(token);
-  }
-}
