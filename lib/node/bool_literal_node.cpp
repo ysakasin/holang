@@ -8,7 +8,7 @@ void BoolLiteralNode::print(int offset) {
   cout << "BoolLiteral " << (value ? "true" : "false") << endl;
 }
 
-void BoolLiteralNode::code_gen(vector<Code> *codes) {
-  codes->push_back({.op = Instruction::PUT_BOOL});
-  codes->push_back({.bval = value});
+void BoolLiteralNode::code_gen(CodeSequence *codes) {
+  codes->append(Instruction::PUT_BOOL);
+  codes->append(value);
 }

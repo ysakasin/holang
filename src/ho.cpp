@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
 
   holang::Parser parser(token_chain);
   Node *root = parser.parse();
-  vector<Code> codes;
+  CodeSequence codes(src);
   // codes.push_back({.op = Instruction::PUT_ENV});
   // codes.push_back({.ival = 0});
   if (root == nullptr) {
@@ -63,8 +63,5 @@ int main(int argc, char *argv[]) {
 
   HolangVM vm(parser.toplevel_val_size());
   vm.codes = &codes;
-  // cout << "----- vm.eval() begin -----" << endl;
   vm.eval();
-  // cout << "----- vm.eval() end -------" << endl;
-  // vm.print_stack();
 }

@@ -57,12 +57,12 @@ using NativeFunc = std::function<Value(Value *, Value *, int)>;
 struct Func {
   FuncType type;
   NativeFunc native;
-  std::vector<Code> body;
+  CodeSequence body;
 
   // Func() {}
   Func(const Func &func)
       : type(func.type), native(func.native), body(func.body) {}
   Func(NativeFunc native) : type(FBUILTIN), native(native) {}
-  Func(const std::vector<Code> &body) : type(FUSERDEF), body(body) {}
+  Func(const CodeSequence &body) : type(FUSERDEF), body(body) {}
 };
 } // namespace holang

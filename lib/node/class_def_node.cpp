@@ -9,11 +9,11 @@ void KlassDefNode::print(int offset) {
   body->print(offset + 1);
 }
 
-void KlassDefNode::code_gen(vector<Code> *codes) {
-  codes->push_back({Instruction::LOAD_CLASS});
-  codes->push_back({.sval = &name});
+void KlassDefNode::code_gen(CodeSequence *codes) {
+  codes->append(Instruction::LOAD_CLASS);
+  codes->append(&name);
 
   body->code_gen(codes);
 
-  codes->push_back({Instruction::PREV_ENV});
+  codes->append(Instruction::PREV_ENV);
 }

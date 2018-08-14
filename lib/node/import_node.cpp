@@ -9,7 +9,7 @@ void ImportNode::print(int offset) {
   module->print(offset + 1);
 }
 
-void ImportNode::code_gen(vector<Code> *codes) {
+void ImportNode::code_gen(CodeSequence *codes) {
   module->code_gen(codes);
-  codes->push_back({Instruction::IMPORT});
+  codes->append(Instruction::IMPORT);
 }

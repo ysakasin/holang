@@ -19,23 +19,23 @@ void IfNode::print(int offset) {
   }
 }
 
-void IfNode::code_gen(vector<Code> *codes) {
+void IfNode::code_gen(CodeSequence *codes) {
   cond->code_gen(codes);
 
   int from_if = codes->size() + 1;
-  codes->push_back({Instruction::JUMP_IFNOT});
-  codes->push_back({.ival = 0}); // dummy
+  codes->append(Instruction::JUMP_IFNOT);
+  codes->append(0); // dummy
   then->code_gen(codes);
 
   int from_then = codes->size() + 1;
-  codes->push_back({Instruction::JUMP});
-  codes->push_back({.ival = 0}); // dummy
+  codes->append(Instruction::JUMP);
+  codes->append(0); // dummy
 
   int to_else = codes->size();
   if (els == nullptr) {
     // nilの概念ができたらnilにする
-    codes->push_back({Instruction::PUT_INT});
-    codes->push_back({.ival = 0});
+    codes->append(Instruction::PUT_INT);
+    codes->append(0);
   } else {
     els->code_gen(codes);
   }

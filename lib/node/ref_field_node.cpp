@@ -8,7 +8,7 @@ void RefFieldNode::print(int offset) {
   cout << "." << field << endl;
 }
 
-void RefFieldNode::code_gen(vector<Code> *codes) {
-  codes->push_back({Instruction::LOAD_OBJ_FIELD});
-  codes->push_back({.sval = &field});
+void RefFieldNode::code_gen(CodeSequence *codes) {
+  codes->append(Instruction::LOAD_OBJ_FIELD);
+  codes->append(&field);
 }

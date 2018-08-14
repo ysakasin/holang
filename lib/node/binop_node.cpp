@@ -34,8 +34,8 @@ Instruction to_opcode(TokenType c) {
   }
 }
 
-void BinopNode::code_gen(vector<Code> *codes) {
+void BinopNode::code_gen(CodeSequence *codes) {
   lhs->code_gen(codes);
   rhs->code_gen(codes);
-  codes->push_back({.op = to_opcode(op)});
+  codes->append(to_opcode(op));
 }

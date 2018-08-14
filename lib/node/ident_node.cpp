@@ -8,7 +8,7 @@ void IdentNode::print(int offset) {
   cout << "Ident " << ident << " : " << index << endl;
 }
 
-void IdentNode::code_gen(vector<Code> *codes) {
-  codes->push_back({.op = Instruction::LOAD_LOCAL});
-  codes->push_back({.ival = index});
+void IdentNode::code_gen(CodeSequence *codes) {
+  codes->append(Instruction::LOAD_LOCAL);
+  codes->append(index);
 }

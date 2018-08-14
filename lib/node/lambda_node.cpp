@@ -9,11 +9,12 @@ void LambdaNode::print(int offset) {
   body->print(offset + 1);
 }
 
-void LambdaNode::code_gen(vector<Code> *codes) {
-  vector<Code> body_code;
+void LambdaNode::code_gen(CodeSequence *codes) {
+  CodeSequence body_code(codes->source_path);
 
   body->code_gen(&body_code);
-  body_code.push_back({Instruction::RET});
-  codes->push_back({Instruction::PUT_LAMBDA});
-  codes->push_back({.funcval = new Func(body_code)});
+  body_code.append(Instruction::RET);
+
+  codes->append(Instruction::PUT_LAMBDA);
+  codes->append(new Func(body_code));
 }

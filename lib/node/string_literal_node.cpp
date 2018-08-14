@@ -8,7 +8,7 @@ void StringLiteralNode::print(int offset) {
   cout << "StringLiteral \"" << str << "\"" << endl;
 }
 
-void StringLiteralNode::code_gen(vector<Code> *codes) {
-  codes->push_back({.op = Instruction::PUT_STRING});
-  codes->push_back({.sval = &str});
+void StringLiteralNode::code_gen(CodeSequence *codes) {
+  codes->append(Instruction::PUT_STRING);
+  codes->append(&str);
 }

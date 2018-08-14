@@ -9,9 +9,9 @@ void SignChangeNode::print(int offset) {
   body->print(offset + 1);
 }
 
-void SignChangeNode::code_gen(vector<Code> *codes) {
+void SignChangeNode::code_gen(CodeSequence *codes) {
   body->code_gen(codes);
-  codes->push_back({.op = Instruction::PUT_INT});
-  codes->push_back({.ival = -1});
-  codes->push_back({.op = Instruction::MUL});
+  codes->append(Instruction::PUT_INT);
+  codes->append(-1);
+  codes->append(Instruction::MUL);
 }

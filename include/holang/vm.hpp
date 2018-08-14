@@ -76,7 +76,7 @@ static Value times_func(Value *self, Value *args, int argc) {
 }
 
 class HolangVM {
-  using Codes = std::vector<Code>;
+  using Codes = CodeSequence;
 
 public:
   HolangVM(int local_val_size) {
@@ -517,9 +517,9 @@ private:
 
     holang::Parser parser(token_chain);
     Node *root = parser.parse();
-    std::vector<Code> *other_codes = new std::vector<Code>();
+    CodeSequence *other_codes = new CodeSequence(path);
     root->code_gen(other_codes);
-    other_codes->push_back({Instruction::RET});
+    other_codes->append(Instruction::RET);
     auto self = stack[ep];
     stack_push(self);
 

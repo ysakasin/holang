@@ -8,8 +8,8 @@ void StmtsNode::print(int offset) {
   next->print(offset);
 }
 
-void StmtsNode::code_gen(vector<Code> *codes) {
+void StmtsNode::code_gen(CodeSequence *codes) {
   current->code_gen(codes);
-  codes->push_back({Instruction::POP});
+  codes->append(Instruction::POP);
   next->code_gen(codes);
 }

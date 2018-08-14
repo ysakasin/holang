@@ -11,15 +11,15 @@ void FuncCallNode::print(int offset) {
   }
 }
 
-void FuncCallNode::code_gen(vector<Code> *codes) {
+void FuncCallNode::code_gen(CodeSequence *codes) {
   if (!is_trailer) {
-    codes->push_back({Instruction::PUT_SELF});
+    codes->append(Instruction::PUT_SELF);
   }
 
   for (Node *arg : args) {
     arg->code_gen(codes);
   }
-  codes->push_back({Instruction::CALL_FUNC});
-  codes->push_back({.sval = &name});
-  codes->push_back({.ival = (int)args.size()});
+  codes->append(Instruction::CALL_FUNC);
+  codes->append(&name);
+  codes->append((int)args.size());
 }

@@ -9,8 +9,8 @@ void AssignNode::print(int offset) {
   rhs->print(offset + 1);
 }
 
-void AssignNode::code_gen(vector<Code> *codes) {
+void AssignNode::code_gen(CodeSequence *codes) {
   rhs->code_gen(codes);
-  codes->push_back({.op = Instruction::STORE_LOCAL});
-  codes->push_back({.ival = lhs->index});
+  codes->append(Instruction::STORE_LOCAL);
+  codes->append(lhs->index);
 }
