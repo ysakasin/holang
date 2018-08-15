@@ -81,6 +81,7 @@ class HolangVM {
 public:
   HolangVM(int local_val_size) {
     init_main_obj();
+    init_import_search_path();
     if (stack == nullptr)
       stack = new Value[stack_size];
     stack_push(HolangVM::main_obj);
@@ -502,6 +503,16 @@ private:
   void import() {
     Value target = stack_pop();
     std::string path = target.to_s();
+    if (path.front() != '.') {
+      for (const auto &prefix : import_search_path) {
+        std::string candidate = prefix + '/' + path;
+        std::ifstream ifs(candidate);
+        if (ifs.is_open()) {
+          path = std::move(candidate);
+          break;
+        }
+      }
+    }
     std::ifstream ifs(path);
     if (ifs.fail()) {
       std::cerr << path << ": Not found." << std::endl;
@@ -577,6 +588,8 @@ private:
     }
   }
 
+  void init_import_search_path();
+
 public:
   Codes *codes;
 
@@ -587,6 +600,7 @@ private:
   int ep = 0; // env pointer
   int stack_size = 1024;
   static Object *main_obj;
+  static std::vector<std::string> import_search_path;
   std::vector<int> prev_ep;
   std::vector<std::pair<Codes *, int>> prev_code;
 };

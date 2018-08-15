@@ -1,0 +1,8 @@
+class Int {
+  func times__(block) {
+    i = 0
+    while i < self {
+      block(i)
+    }
+  }
+}
