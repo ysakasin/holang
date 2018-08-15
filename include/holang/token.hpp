@@ -42,6 +42,7 @@ enum class TokenType {
   Class,
   Import,
   While,
+  Return,
 
   // delimiter
   ParenL,     // (
@@ -153,6 +154,8 @@ static std::ostream &operator<<(std::ostream &out, const TokenType type) {
     return out << "Import";
   case TokenType::While:
     return out << "While";
+  case TokenType::Return:
+    return out << "return";
 
   // delimitor
   case TokenType::ParenL:

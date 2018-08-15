@@ -57,13 +57,15 @@ private:
 
 struct IdentNode : public Node {
 public:
-  IdentNode(const string &ident, int index) : ident(ident), index(index) {}
+  IdentNode(const string &ident, int depth, int index)
+      : ident(ident), depth(depth), index(index) {}
   void print(int offset) override;
   void code_gen(CodeSequence *codes) override;
 
   // TODO
   // private:
   const std::string ident;
+  const int depth;
   const int index;
 };
 
@@ -221,5 +223,15 @@ public:
 
 private:
   Node *module;
+};
+
+struct ReturnNode : public Node {
+public:
+  ReturnNode(Node *expr) : expr(expr) {}
+  void print(int offset) override;
+  void code_gen(CodeSequence *codes) override;
+
+private:
+  Node *expr;
 };
 } // namespace holang

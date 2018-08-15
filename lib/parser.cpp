@@ -56,6 +56,8 @@ Node *Parser::read_stmt() {
     node = read_import();
   } else if (is_next(TokenType::While)) {
     node = read_while();
+  } else if (is_next(TokenType::Return)) {
+    node = read_return();
   } else if (is_next(TokenType::BraseL)) {
     node = read_suite();
   } else {
@@ -80,6 +82,9 @@ Node *Parser::read_funcdef() {
   take(TokenType::ParenL);
   vector<string *> params;
   read_params(&params);
+  for (string *str : params) {
+    variable_table.insert(*str);
+  }
   take(TokenType::ParenR);
 
   Node *body = read_suite();
@@ -105,6 +110,12 @@ Node *Parser::read_while() {
   Node *node = read_expr();
   Node *body = read_suite();
   return new WhileNode(node, body);
+}
+
+Node *Parser::read_return() {
+  take(TokenType::Return);
+  Node *node = read_expr();
+  return new ReturnNode(node);
 }
 
 Node *Parser::read_suite() {
@@ -133,8 +144,10 @@ Node *Parser::read_expr() { return read_assignment_expr(); }
 Node *Parser::read_assignment_expr() {
   Token *token = get();
   if (token->type == TokenType::Ident && next_token(TokenType::Assign)) {
-    int index = variable_table.get(token->str);
-    return new AssignNode(new IdentNode(token->str, index),
+    auto pair = variable_table.insert_if_absent(token->str);
+    int depth = pair.first;
+    int index = pair.second;
+    return new AssignNode(new IdentNode(token->str, depth, index),
                           read_assignment_expr());
   }
   unget();
@@ -260,8 +273,13 @@ Node *Parser::read_name_or_funccall(bool is_trailer) {
     if (is_trailer) {
       return new RefFieldNode(ident->str);
     } else {
-      int index = variable_table.get(ident->str);
-      return new IdentNode(ident->str, index);
+      auto pair = variable_table.find(ident->str);
+      if (pair.first < 0) {
+        exit_by_unexpected("It is not defined", ident);
+      }
+      int depth = pair.first;
+      int index = pair.second;
+      return new IdentNode(ident->str, depth, index);
     }
   }
 }
@@ -278,7 +296,7 @@ Node *Parser::read_block() {
 
   variable_table.next();
   for (auto *str : params) {
-    variable_table.get(*str);
+    variable_table.insert(*str);
   }
 
   consume_newlines();

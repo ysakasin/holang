@@ -22,6 +22,7 @@ void Lexer::init_keywords() {
   keywords["class"] = TokenType::Class;
   keywords["import"] = TokenType::Import;
   keywords["while"] = TokenType::While;
+  keywords["return"] = TokenType::Return;
 }
 
 bool Lexer::is_next(char c) {
